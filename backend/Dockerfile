@@ -28,6 +28,7 @@ WORKDIR /app
 
 COPY --from=backend-builder --chown=app:app /out/backend ./backend
 COPY --from=frontend-builder --chown=app:app /frontend/build ./frontend/build
+COPY --chown=app:app images /images
 
 USER app
 
