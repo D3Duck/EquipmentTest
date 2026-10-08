@@ -5,6 +5,40 @@
 -ltnp 'sport = :8090'
 
 
+## AWS upate command
+
+Run through Systems Manager → AWS-RunShellScript:
+
+```bash
+set -e
+cd /opt/equipment-app
+
+git pull --ff-only
+
+# Use the same configuration for every command.
+dc() {
+  docker compose --env-file .env.aws \
+    -f compose.yaml -f compose.https.yaml "$@"
+}
+
+# Build while the existing app is still available.
+dc build app-backend
+
+# Begin downtime.
+dc stop app-backend
+
+# Apply migrations. If this fails, the script stops here.
+dc run --rm atlas
+
+# Start the updated app.
+dc up -d --no-deps --no-build app-backend
+
+curl --fail --show-error \
+  --retry 12 --retry-connrefused --retry-delay 5 \
+  http://127.0.0.1:8080/health
+```
+
+
 ## Working Assumptions
 
 If the eventual project layout or variable names change, update this document and the Atlas commands together.

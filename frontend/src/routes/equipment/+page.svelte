@@ -280,6 +280,7 @@
 		</p>
 
 		<div class="depot-strip" aria-label="Depot summary">
+			<span><strong>NEW</strong> just updated</span>
 			<span><strong>20</strong> products</span>
 			<span><strong>75</strong> tracked units</span>
 			<span><strong>07:00</strong> first collection</span>
