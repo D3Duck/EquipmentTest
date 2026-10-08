@@ -1,0 +1,31 @@
+name: Publish app image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_USER: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/d3duck/equipmenttest:${GITHUB_SHA}"
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin
+          docker build -f backend/Dockerfile \
+            --label org.opencontainers.image.source=https://github.com/D3Duck/EquipmentTest \
+            --label org.opencontainers.image.revision="$GITHUB_SHA" \
+            -t "$image" .
+          docker push "$image"
+          printf 'Published `%s`\n' "$image" >> "$GITHUB_STEP_SUMMARY"
