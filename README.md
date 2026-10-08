@@ -1,5 +1,5 @@
-# My personal website
+# Demo website
 
-My portfolio and project demos.
+A portfolio-type project demo.
 
-Website: https://d3duck.github.io
+Website: https://testequipment.duckdns.org/

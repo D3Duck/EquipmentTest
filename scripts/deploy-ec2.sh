@@ -34,6 +34,8 @@ dc run --rm --no-deps atlas
 echo 'Starting downloaded app image'
 dc up -d --no-deps --no-build app-backend
 curl --fail --show-error \
-  --retry 12 --retry-connrefused --retry-delay 5 \
+  --retry 12 --retry-all-errors --retry-delay 5 \
+  --connect-timeout 5 --max-time 10 \
   http://127.0.0.1:8080/health
+
 dc ps

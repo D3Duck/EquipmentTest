@@ -99,7 +99,7 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 ### Basket — `/equipment/basket`
 
 - Show all requested products, quantities, periods, unit prices, and totals.
-- Each basket and resulting booking uses one hire period; changing the period revalidates every basket line.
+- Each basket item has its own hire period; changing a period revalidates that basket line.
 - Allow quantity changes and removal before checkout.
 - A basket does not reserve inventory.
 - Clearly state that availability and current prices will be checked again during checkout.
@@ -153,9 +153,9 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - `equipment_units`: individually tracked physical assets belonging to a product.
 - `maintenance_records`: periods during which a unit cannot be hired.
 - `baskets` and `basket_items`: unreserved customer selections.
-- `bookings`: customer, hire period, total, and overall lifecycle information.
-- `booking_items`: booked product, quantity, and price snapshot.
-- `booking_item_units`: physical-unit allocations made before collection.
+- `bookings`: customer, total, and overall lifecycle information.
+- `booking_items`: booked product, quantity, hire period, and price snapshot.
+- `booking_item_units`: changeable physical-unit allocations made before collection.
 - `audit_events`: security- and business-relevant changes.
 
 ### Status Model
@@ -173,7 +173,7 @@ Fulfilment state belongs to a booking item:
 - `returned`
 - `cancelled`
 
-`Overdue` is derived when an item is still collected after the booking end time; it is not stored as a physical-unit state. Whether a unit is available for a future period is calculated from its operational state, maintenance periods, active bookings, and allocations.
+`Overdue` is derived when an item is still collected after that item's hire end time; it is not stored as a physical-unit state. Whether a unit is available for a future period is calculated from its operational state, maintenance periods, active bookings, and allocations.
 
 ### Booking and Availability Rules
 
