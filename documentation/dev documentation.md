@@ -1,18 +1,11 @@
 # Development and Release Cycle
 
-This project uses an always-online development environment. Changes must therefore preserve availability for other users of that environment, and database changes must remain compatible with the currently deployed application until the replacement version is healthy.
+## Notes
+
+-ltnp 'sport = :8090'
+
 
 ## Working Assumptions
-
-- `main` should remain deployable.
-- Development and production use persistent PostgreSQL databases.
-- The Atlas migration directory is `backend/database/migrations`.
-- The desired Atlas schema is `backend/database/schema.hcl`.
-- Database URLs are supplied through environment variables and are never committed.
-- `DEV_DATABASE_URL` targets the persistent development database.
-- `PROD_DATABASE_URL` is injected only by the production deployment environment or CI/CD secret store.
-- Atlas's `--dev-url` is a disposable scratch database used to calculate and validate migrations. It must never point at the persistent development or production database.
-- Application versions come from the release tag or commit SHA. Do not edit separate production and development version values by hand.
 
 If the eventual project layout or variable names change, update this document and the Atlas commands together.
 
@@ -284,7 +277,16 @@ ss -tulpn
 
 ### Run a Standalone Persistent Development PostgreSQL Container
 
-Docker Compose is preferred once the project compose file exists. Until then, this preserves the original standalone setup without embedding credentials:
+Docker Compose is the preferred local workflow. Build and start the database, migrations, and application without stopping unrelated services:
+
+```bash
+docker compose up --build --detach
+docker compose ps
+```
+
+The application is exposed on `$GO_PORT` and PostgreSQL on `$POSTGRES_PORT`; both respect their bind-address settings in `.env`. The named PostgreSQL volume is created automatically and survives container replacement.
+
+For database-only recovery or troubleshooting, this standalone command preserves the original setup without embedding credentials:
 
 ```bash
 docker run \

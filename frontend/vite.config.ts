@@ -1,20 +1,56 @@
-import adapter from '@sveltejs/adapter-auto';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import adapter from '@sveltejs/adapter-static';
+import { defineConfig, loadEnv } from 'vite';
 
-export default defineConfig({
-	plugins: [
-		sveltekit({
-			compilerOptions: {
-				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
-				runes: ({ filename }) =>
-					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
-			},
+export default defineConfig(({ mode }) => {
+	const env = loadEnv(mode, '..', '');
+	const frontendPort = Number(env.VITE_FRONTEND_PORT || 5173);
+	const backendHost = '127.0.0.1';
+	const backendPort = env.GO_PORT || '8080';
+	const backendTarget = `http://${backendHost}:${backendPort}`;
 
-			// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-			// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-			// See https://svelte.dev/docs/kit/adapters for more information about adapters.
-			adapter: adapter()
-		})
-	]
+	return {
+		plugins: [
+			sveltekit({
+				adapter: adapter({ fallback: 'index.html' })
+			})
+		],
+		server: {
+			port: frontendPort,
+			proxy: {
+				'/health': {
+					target: backendTarget,
+					changeOrigin: true
+				},
+				// For migrations
+				'/database': {
+					target: backendTarget,
+					changeOrigin: true,
+					secure: false
+				},
+				// TODO add images to new products
+				'/images': {
+					target: backendTarget,
+					changeOrigin: true,
+					secure: false
+				},
+				'/api': {
+					target: backendTarget,
+					changeOrigin: true,
+					secure: false
+				},
+				'/ws': {
+					target: backendTarget,
+					changeOrigin: true,
+					secure: false,
+					ws: true // Enables WebSocket proxying
+				}
+			}
+		}
+
+		// Leave in when debugging builds - to see the files and line numbers on log entries and errors
+		// 	build: {
+		// 		sourcemap: true
+		// },
+	};
 });

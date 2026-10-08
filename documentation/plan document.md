@@ -15,7 +15,7 @@ The initial product is solely an equipment-hire application. Uptime-monitor feat
 - Customers request a product and quantity; they do not choose individual physical units.
 - Store administrators allocate physical units automatically or manually before collection.
 - The interface must be responsive and support light and dark themes.
-- Use Bootstrap for the main styling, with project-specific adjustments where needed.
+- Use lightweight project-owned CSS with reusable design tokens and components; do not depend on a CSS framework.
 
 ## Roles and Permissions
 
@@ -52,7 +52,7 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 ### Footer
 
 - Built by Luuk Vlasblom
-- Stack: Svelte 5, Go, Fiber, PostgreSQL, Atlas, Bootstrap, Docker, and Caddy
+- Stack: Svelte 5, Go, Fiber, PostgreSQL, Atlas, Docker, and Caddy
 - Source-code link
 
 ### Sign-in and Demo Reset
