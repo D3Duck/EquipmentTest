@@ -12,8 +12,8 @@
 			<p class="eyebrow">Equipment hire, without the guesswork</p>
 			<h1>Borrow the gear. Keep the momentum.</h1>
 			<p class="hero-copy">
-				Browse real inventory, choose exactly when you need it, and reserve with confidence. This
-				demo brings customer booking and store operations into one focused workflow.
+				Choose your hire period, see exactly what is on the shelf, and reserve it for collection. No
+				callback required and no uncertain stock counts.
 			</p>
 			<div class="hero-actions">
 				<a class="button button-primary" href="/equipment">
@@ -28,18 +28,18 @@
 						/>
 					</svg>
 				</a>
-				<a class="button button-secondary" href="#how-it-works">See how it works</a>
+				<a class="button button-secondary" href="#how-it-works">How hiring works</a>
 			</div>
 			<p class="hero-note">
-				<span class="status-dot" aria-hidden="true"></span> Demo environment with sample equipment and
-				bookings
+				<span class="status-dot" aria-hidden="true"></span> 42 products available today · Collection from
+				7:00 AM
 			</p>
 		</div>
 
 		<div class="availability-card" aria-label="Example equipment availability">
 			<div class="card-topline">
-				<strong>Quick availability</strong>
-				<span class="demo-pill">Live demo</span>
+				<strong>Hire desk / availability</strong>
+				<span class="demo-pill">Depot 01</span>
 			</div>
 			<div class="date-grid">
 				<div class="date-field"><span>Start date</span><strong>12 Oct 2026</strong></div>
@@ -48,17 +48,17 @@
 			<div class="availability-list">
 				<div class="availability-row">
 					<span class="item-icon" aria-hidden="true">◈</span>
-					<span class="item-name">Cordless drill <small>Tools</small></span>
+					<span class="item-name">Cordless drill kit <small>TL-014 · Tools</small></span>
 					<span class="quantity">3 available</span>
 				</div>
 				<div class="availability-row">
 					<span class="item-icon" aria-hidden="true">◎</span>
-					<span class="item-name">Camera kit <small>Photography</small></span>
+					<span class="item-name">Camera kit <small>AV-008 · Photography</small></span>
 					<span class="quantity">2 available</span>
 				</div>
 				<div class="availability-row">
 					<span class="item-icon" aria-hidden="true">△</span>
-					<span class="item-name">Camping tent <small>Outdoor</small></span>
+					<span class="item-name">Four-person tent <small>OD-021 · Outdoor</small></span>
 					<span class="quantity">4 available</span>
 				</div>
 			</div>
@@ -71,12 +71,12 @@
 	<div class="container">
 		<div class="section-heading">
 			<div>
-				<p class="section-kicker">Simple by design</p>
-				<h2>From search to reservation in three steps.</h2>
+				<p class="section-kicker">At the hire desk</p>
+				<h2>Book against real stock, not an estimate.</h2>
 			</div>
 			<p>
-				Pick a period once, compare what is genuinely available, and keep every booking in one
-				place.
+				Your dates drive the catalogue. Maintenance, existing bookings, and retired units are
+				accounted for before you reserve.
 			</p>
 		</div>
 		<div class="step-grid">
@@ -105,12 +105,12 @@
 	<div class="container">
 		<div class="section-heading">
 			<div>
-				<p class="section-kicker">Built for both sides of the counter</p>
-				<h2>A realistic workflow, not just a catalogue.</h2>
+				<p class="section-kicker">Behind the counter</p>
+				<h2>Every unit has a job, condition, and history.</h2>
 			</div>
 			<p>
-				The project connects a clear customer journey with the inventory controls a hire store
-				actually needs.
+				The same system used to reserve equipment also supports allocation, collection, return,
+				maintenance, and audit work.
 			</p>
 		</div>
 		<div class="feature-grid">
@@ -181,7 +181,7 @@
 	<div class="container">
 		<div class="tech-strip">
 			<div>
-				<h2>One focused, full-stack build.</h2>
+				<h2>Built as an operational system.</h2>
 				<p>
 					Designed to demonstrate thoughtful domain modelling, real-time updates, database
 					concurrency and repeatable deployment.
@@ -201,6 +201,7 @@
 <style>
 	.hero {
 		padding: clamp(3rem, 6vw, 5rem) 0 4rem;
+		border-bottom: 1px solid var(--line);
 	}
 
 	.hero-grid {
@@ -211,22 +212,32 @@
 	}
 
 	.eyebrow {
-		margin: 0 0 1rem;
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		margin: 0 0 1.25rem;
 		color: var(--brand-dark);
 		font-size: 0.78rem;
 		font-weight: 780;
-		letter-spacing: 0.13em;
+		letter-spacing: 0.16em;
 		text-transform: uppercase;
 	}
 
+	.eyebrow::before {
+		width: 0.65rem;
+		height: 0.65rem;
+		background: var(--brand);
+		content: '';
+	}
+
 	.hero h1 {
-		max-width: 12ch;
+		max-width: 11ch;
 		margin: 0;
 		color: var(--navy);
-		font-size: clamp(3rem, 7vw, 5.7rem);
-		font-weight: 790;
-		letter-spacing: -0.065em;
-		line-height: 0.98;
+		font-size: clamp(3rem, 6.4vw, 5.25rem);
+		font-weight: 850;
+		letter-spacing: -0.055em;
+		line-height: 0.95;
 	}
 
 	.hero-copy {
@@ -251,14 +262,11 @@
 		justify-content: center;
 		gap: 0.6rem;
 		padding: 0.75rem 1.15rem;
-		border: 1px solid transparent;
-		border-radius: 0.78rem;
+		border: 2px solid var(--ink);
+		border-radius: var(--radius-sm);
 		font-weight: 720;
 		text-decoration: none;
-		transition:
-			transform 150ms ease,
-			box-shadow 150ms ease,
-			background 150ms ease;
+		transition: transform 120ms ease;
 	}
 
 	.button:hover {
@@ -268,22 +276,21 @@
 	.button-primary {
 		background: var(--brand);
 		color: #fff;
-		box-shadow: 0 12px 28px rgba(8, 127, 121, 0.22);
+		box-shadow: 4px 4px 0 var(--ink);
 	}
 
 	.button-primary:hover {
 		background: var(--brand-dark);
+		box-shadow: 2px 2px 0 var(--ink);
 	}
 
 	.button-secondary {
-		border-color: var(--line);
-		background: rgba(255, 255, 255, 0.74);
+		background: transparent;
 		color: var(--navy);
 	}
 
 	.button-secondary:hover {
-		background: #fff;
-		box-shadow: 0 10px 25px rgba(16, 38, 76, 0.08);
+		background: var(--surface);
 	}
 
 	.hero-note {
@@ -291,7 +298,7 @@
 		align-items: center;
 		gap: 0.55rem;
 		margin: 1.35rem 0 0;
-		color: #66758c;
+		color: var(--muted);
 		font-size: 0.88rem;
 	}
 
@@ -299,27 +306,26 @@
 		width: 0.55rem;
 		height: 0.55rem;
 		border-radius: 50%;
-		background: #17a673;
-		box-shadow: 0 0 0 5px rgba(23, 166, 115, 0.12);
+		background: #3f784c;
 	}
 
 	.availability-card {
 		position: relative;
 		padding: 1.5rem;
-		border: 1px solid rgba(216, 224, 234, 0.9);
+		border: 2px solid var(--ink);
 		border-radius: var(--radius-lg);
-		background: rgba(255, 255, 255, 0.92);
+		background: var(--surface);
 		box-shadow: var(--shadow);
 	}
 
 	.availability-card::before {
 		position: absolute;
-		top: -1.1rem;
-		right: 2.4rem;
-		width: 5rem;
-		height: 0.3rem;
-		border-radius: 999px;
-		background: #f0b24b;
+		top: -2px;
+		right: auto;
+		left: -2px;
+		width: calc(100% + 4px);
+		height: 0.45rem;
+		background: var(--brand);
 		content: '';
 	}
 
@@ -338,9 +344,10 @@
 
 	.demo-pill {
 		padding: 0.35rem 0.6rem;
-		border-radius: 999px;
-		background: var(--brand-soft);
-		color: var(--brand-dark);
+		border: 1px solid var(--ink);
+		border-radius: 1px;
+		background: #f0c84b;
+		color: var(--ink);
 		font-size: 0.72rem;
 		font-weight: 760;
 		letter-spacing: 0.04em;
@@ -355,9 +362,9 @@
 
 	.date-field {
 		padding: 0.8rem 0.9rem;
-		border: 1px solid var(--line);
+		border: 1px solid var(--ink);
 		border-radius: var(--radius-sm);
-		background: #fbfcfd;
+		background: #f8f6ef;
 	}
 
 	.date-field span {
@@ -374,8 +381,8 @@
 
 	.availability-list {
 		display: grid;
-		gap: 0.7rem;
 		margin: 1.25rem 0;
+		border-block: 1px solid var(--line);
 	}
 
 	.availability-row {
@@ -384,8 +391,12 @@
 		align-items: center;
 		gap: 0.75rem;
 		padding: 0.8rem;
-		border-radius: var(--radius-sm);
-		background: var(--surface-alt);
+		border-bottom: 1px solid var(--line);
+		background: transparent;
+	}
+
+	.availability-row:last-child {
+		border-bottom: 0;
 	}
 
 	.item-icon {
@@ -393,8 +404,9 @@
 		width: 2.3rem;
 		height: 2.3rem;
 		place-items: center;
-		border-radius: 0.6rem;
-		background: #fff;
+		border: 1px solid var(--ink);
+		border-radius: 1px;
+		background: var(--brand-soft);
 		font-size: 1.1rem;
 	}
 
@@ -413,7 +425,7 @@
 	}
 
 	.quantity {
-		color: var(--brand-dark);
+		color: #376b43;
 		font-size: 0.75rem;
 		font-weight: 740;
 	}
@@ -424,7 +436,7 @@
 
 	.section-tinted {
 		border-block: 1px solid var(--line);
-		background: rgba(255, 255, 255, 0.68);
+		background: #e6e3db;
 	}
 
 	.section-heading {
@@ -460,25 +472,22 @@
 
 	.step-card,
 	.feature-card {
-		border: 1px solid var(--line);
+		border: 1px solid var(--ink);
 		border-radius: var(--radius-md);
 		background: var(--surface);
 	}
 
 	.step-card {
 		padding: 1.5rem;
+		border-top: 5px solid var(--brand);
 	}
 
 	.step-number {
-		display: grid;
-		width: 2.4rem;
-		height: 2.4rem;
-		place-items: center;
+		display: block;
 		margin-bottom: 1.6rem;
-		border-radius: 50%;
-		background: var(--brand-soft);
 		color: var(--brand-dark);
-		font-size: 0.82rem;
+		font-family: ui-monospace, monospace;
+		font-size: 0.9rem;
 		font-weight: 800;
 	}
 
@@ -499,7 +508,7 @@
 
 	.feature-card {
 		padding: 1.6rem;
-		background: linear-gradient(155deg, #fff, #f8fafc);
+		background: var(--surface);
 	}
 
 	.feature-icon {
@@ -508,8 +517,9 @@
 		height: 2.8rem;
 		place-items: center;
 		margin-bottom: 1.4rem;
-		border-radius: 0.78rem;
-		background: var(--navy);
+		border: 1px solid var(--ink);
+		border-radius: 1px;
+		background: var(--brand);
 		color: #fff;
 	}
 
@@ -519,8 +529,9 @@
 		justify-content: space-between;
 		gap: 2rem;
 		padding: 2rem;
-		border-radius: var(--radius-lg);
-		background: var(--navy);
+		border-left: 8px solid var(--brand);
+		border-radius: 0;
+		background: var(--ink);
 		color: #fff;
 	}
 
@@ -533,7 +544,7 @@
 	.tech-strip p {
 		max-width: 42rem;
 		margin: 0;
-		color: #bdc9dc;
+		color: #cfcec7;
 		line-height: 1.6;
 	}
 
@@ -547,8 +558,7 @@
 	.tech-list span {
 		padding: 0.5rem 0.75rem;
 		border: 1px solid rgba(255, 255, 255, 0.18);
-		border-radius: 999px;
-		background: rgba(255, 255, 255, 0.08);
+		border-radius: 1px;
 		font-size: 0.8rem;
 		font-weight: 680;
 	}

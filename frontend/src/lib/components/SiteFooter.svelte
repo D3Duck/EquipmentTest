@@ -18,8 +18,8 @@
 
 <style>
 	.site-footer {
-		border-top: 1px solid var(--line);
-		background: #fff;
+		border-top: 2px solid var(--ink);
+		background: #e6e3db;
 	}
 
 	.footer-shell {

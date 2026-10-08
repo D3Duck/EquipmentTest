@@ -56,7 +56,7 @@
 				</svg>
 				Source
 			</a>
-			<span class="demo-account"><span class="account-avatar">D</span> Demo</span>
+			<a class="demo-account" href="/login"><span class="account-avatar">→</span> Sign in</a>
 		</div>
 
 		<button
@@ -111,6 +111,7 @@
 			target="_blank"
 			rel="noreferrer">Source code</a
 		>
+		<a class="nav-link" href="/login" onclick={() => (menuOpen = false)}>Sign in</a>
 	</nav>
 </header>
 
@@ -119,9 +120,8 @@
 		position: sticky;
 		top: 0;
 		z-index: 20;
-		border-bottom: 1px solid rgba(223, 228, 236, 0.88);
-		background: rgba(255, 255, 255, 0.92);
-		backdrop-filter: blur(16px);
+		border-bottom: 2px solid var(--ink);
+		background: #f8f6ef;
 	}
 
 	.nav-shell {
@@ -136,7 +136,7 @@
 		align-items: center;
 		gap: 0.7rem;
 		color: var(--ink);
-		font-weight: 760;
+		font-weight: 820;
 		letter-spacing: -0.02em;
 		text-decoration: none;
 	}
@@ -146,10 +146,11 @@
 		width: 2.25rem;
 		height: 2.25rem;
 		place-items: center;
-		border-radius: 0.7rem;
+		border: 2px solid var(--ink);
+		border-radius: var(--radius-sm);
 		color: #fff;
-		background: linear-gradient(145deg, #0b9189, #075e69);
-		box-shadow: 0 8px 20px rgba(8, 127, 121, 0.23);
+		background: var(--brand);
+		box-shadow: 3px 3px 0 var(--ink);
 	}
 
 	.brand-copy {
@@ -161,8 +162,8 @@
 		margin-top: 0.2rem;
 		color: var(--muted);
 		font-size: 0.68rem;
-		font-weight: 650;
-		letter-spacing: 0.09em;
+		font-weight: 750;
+		letter-spacing: 0.11em;
 		text-transform: uppercase;
 	}
 
@@ -179,9 +180,9 @@
 		height: 100%;
 		align-items: center;
 		padding: 0 0.85rem;
-		color: #4f5d75;
+		color: #4f524d;
 		font-size: 0.93rem;
-		font-weight: 620;
+		font-weight: 700;
 		text-decoration: none;
 	}
 
@@ -195,7 +196,7 @@
 		right: 0.85rem;
 		bottom: -1px;
 		left: 0.85rem;
-		height: 2px;
+		height: 4px;
 		background: var(--brand);
 		content: '';
 	}
@@ -213,7 +214,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		min-height: 2.6rem;
-		border-radius: 999px;
+		border-radius: var(--radius-sm);
 		font-size: 0.88rem;
 		font-weight: 650;
 		text-decoration: none;
@@ -221,7 +222,7 @@
 
 	.source-link {
 		padding: 0.5rem 0.8rem;
-		color: #46546d;
+		color: var(--muted);
 	}
 
 	.source-link:hover {
@@ -231,9 +232,9 @@
 
 	.demo-account {
 		padding: 0.35rem 0.8rem 0.35rem 0.35rem;
-		border: 1px solid var(--line);
-		background: var(--surface);
-		color: var(--navy);
+		border: 1px solid var(--ink);
+		background: var(--brand);
+		color: #fff;
 	}
 
 	.account-avatar {
@@ -241,8 +242,8 @@
 		width: 1.9rem;
 		height: 1.9rem;
 		place-items: center;
-		border-radius: 50%;
-		background: var(--navy);
+		border-radius: 1px;
+		background: var(--ink);
 		color: #fff;
 		font-size: 0.78rem;
 	}
@@ -253,9 +254,9 @@
 		height: 2.7rem;
 		place-items: center;
 		border: 1px solid var(--line);
-		border-radius: 0.75rem;
+		border-radius: var(--radius-sm);
 		background: var(--surface);
-		color: var(--navy);
+		color: var(--ink);
 		cursor: pointer;
 	}
 
@@ -279,13 +280,13 @@
 			gap: 0.35rem;
 			padding: 0 1rem 1rem;
 			border-top: 1px solid var(--line);
-			background: #fff;
+			background: #f8f6ef;
 		}
 
 		.mobile-nav .nav-link {
 			height: auto;
 			padding: 0.85rem;
-			border-radius: 0.65rem;
+			border-radius: var(--radius-sm);
 		}
 
 		.mobile-nav .nav-link:hover,

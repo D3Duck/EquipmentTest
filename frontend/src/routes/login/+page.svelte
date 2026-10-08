@@ -54,9 +54,9 @@
 					/>
 				</svg>
 			</span>
-			<p class="eyebrow">Demo access</p>
-			<h1>Welcome back</h1>
-			<p>Sign in to manage your bookings and access the equipment-hire demo.</p>
+			<p class="eyebrow">Customer access / Depot 01</p>
+			<h1>Sign in at the hire desk.</h1>
+			<p>Review bookings, check collection details, and reserve equipment against live stock.</p>
 		</div>
 
 		<form onsubmit={handleSubmit}>
@@ -119,17 +119,28 @@
 	}
 
 	.login-card {
-		width: min(100%, 29rem);
+		position: relative;
+		width: min(100%, 31rem);
 		padding: clamp(1.5rem, 5vw, 2.5rem);
-		border: 1px solid rgba(216, 224, 234, 0.95);
+		border: 2px solid var(--ink);
 		border-radius: var(--radius-lg);
-		background: rgba(255, 255, 255, 0.94);
+		background: var(--surface);
 		box-shadow: var(--shadow);
+	}
+
+	.login-card::before {
+		position: absolute;
+		top: -2px;
+		left: -2px;
+		width: calc(100% + 4px);
+		height: 0.45rem;
+		background: var(--brand);
+		content: '';
 	}
 
 	.login-heading {
 		margin-bottom: 2rem;
-		text-align: center;
+		text-align: left;
 	}
 
 	.login-icon {
@@ -137,10 +148,11 @@
 		width: 3.25rem;
 		height: 3.25rem;
 		place-items: center;
-		margin: 0 auto 1.1rem;
-		border-radius: 1rem;
-		background: var(--brand-soft);
-		color: var(--brand-dark);
+		margin: 0 0 1.4rem;
+		border: 1px solid var(--ink);
+		border-radius: 1px;
+		background: var(--brand);
+		color: #fff;
 	}
 
 	.eyebrow {
@@ -148,19 +160,21 @@
 		color: var(--brand-dark);
 		font-size: 0.75rem;
 		font-weight: 780;
-		letter-spacing: 0.13em;
+		letter-spacing: 0.15em;
 		text-transform: uppercase;
 	}
 
 	h1 {
 		margin: 0;
 		color: var(--navy);
-		font-size: clamp(2rem, 7vw, 2.6rem);
-		letter-spacing: -0.05em;
+		font-size: clamp(2rem, 7vw, 2.75rem);
+		font-weight: 850;
+		letter-spacing: -0.045em;
+		line-height: 1;
 	}
 
 	.login-heading > p:last-child {
-		margin: 0.8rem auto 0;
+		margin: 0.9rem 0 0;
 		color: var(--muted);
 		font-size: 0.95rem;
 		line-height: 1.6;
@@ -183,10 +197,10 @@
 		width: 100%;
 		height: 3.15rem;
 		padding: 0 0.95rem;
-		border: 1px solid var(--line);
-		border-radius: 0.78rem;
+		border: 1px solid var(--ink);
+		border-radius: var(--radius-sm);
 		outline: none;
-		background: #fbfcfd;
+		background: #f8f6ef;
 		color: var(--ink);
 		font-weight: 500;
 		transition:
@@ -202,14 +216,14 @@
 	input:focus {
 		border-color: var(--brand);
 		background: #fff;
-		box-shadow: 0 0 0 4px rgba(8, 127, 121, 0.12);
+		box-shadow: 0 0 0 3px var(--brand-soft);
 	}
 
 	.form-error {
 		margin: -0.2rem 0 0;
 		padding: 0.75rem 0.85rem;
 		border: 1px solid #fecaca;
-		border-radius: 0.7rem;
+		border-radius: var(--radius-sm);
 		background: #fef2f2;
 		color: #b42318;
 		font-size: 0.85rem;
@@ -224,11 +238,11 @@
 		justify-content: center;
 		gap: 0.6rem;
 		margin-top: 0.25rem;
-		border: 0;
-		border-radius: 0.78rem;
+		border: 2px solid var(--ink);
+		border-radius: var(--radius-sm);
 		background: var(--brand);
 		color: #fff;
-		box-shadow: 0 12px 28px rgba(8, 127, 121, 0.22);
+		box-shadow: 4px 4px 0 var(--ink);
 		font-weight: 750;
 		cursor: pointer;
 		transition:
@@ -240,7 +254,7 @@
 	button:hover:not(:disabled) {
 		transform: translateY(-1px);
 		background: var(--brand-dark);
-		box-shadow: 0 15px 32px rgba(8, 127, 121, 0.27);
+		box-shadow: 2px 2px 0 var(--ink);
 	}
 
 	button:disabled {
@@ -255,7 +269,7 @@
 		color: var(--muted);
 		font-size: 0.78rem;
 		line-height: 1.5;
-		text-align: center;
+		text-align: left;
 	}
 
 	@media (max-width: 480px) {

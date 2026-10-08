@@ -1,29 +1,28 @@
 :root {
 	font-family:
-		Inter,
 		ui-sans-serif,
 		system-ui,
 		-apple-system,
 		BlinkMacSystemFont,
 		'Segoe UI',
 		sans-serif;
-	color: #172033;
-	background: #f7f8fb;
+	color: #20231f;
+	background: #f2f0e9;
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
-	--ink: #172033;
-	--muted: #667085;
-	--brand: #087f79;
-	--brand-dark: #06645f;
-	--brand-soft: #e7f7f4;
-	--navy: #10264c;
-	--surface: #ffffff;
-	--surface-alt: #f1f4f8;
-	--line: #dfe4ec;
-	--shadow: 0 18px 55px rgba(16, 38, 76, 0.09);
-	--radius-sm: 0.65rem;
-	--radius-md: 1rem;
-	--radius-lg: 1.5rem;
+	--ink: #20231f;
+	--muted: #656861;
+	--brand: #e6532f;
+	--brand-dark: #b83b20;
+	--brand-soft: #f9dfd5;
+	--navy: #20231f;
+	--surface: #fffdf8;
+	--surface-alt: #e7e5de;
+	--line: #c7c6bf;
+	--shadow: 5px 5px 0 rgba(32, 35, 31, 0.14);
+	--radius-sm: 0.2rem;
+	--radius-md: 0.35rem;
+	--radius-lg: 0.5rem;
 }
 
 * {
@@ -38,8 +37,7 @@ body {
 	margin: 0;
 	min-width: 320px;
 	min-height: 100vh;
-	background:
-		radial-gradient(circle at 82% 5%, rgba(8, 127, 121, 0.08), transparent 27rem), #f7f8fb;
+	background: #f2f0e9;
 }
 
 button,
@@ -75,13 +73,13 @@ svg {
 	margin: 0 0 1rem;
 	color: var(--brand-dark);
 	font-size: 0.78rem;
-	font-weight: 780;
-	letter-spacing: 0.13em;
+	font-weight: 800;
+	letter-spacing: 0.16em;
 	text-transform: uppercase;
 }
 
 :focus-visible {
-	outline: 3px solid rgba(8, 127, 121, 0.35);
+	outline: 3px solid rgba(230, 83, 47, 0.4);
 	outline-offset: 3px;
 }
 
