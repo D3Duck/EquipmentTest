@@ -4,67 +4,136 @@
 
 <footer class="site-footer">
 	<div class="container footer-shell">
+		<div class="footer-brand">
+			<span aria-hidden="true">E/H</span>
+			<p><strong>Equipment Hire</strong><small>Sydney depot demo</small></p>
+		</div>
+
+		<nav class="footer-links" aria-label="Footer navigation">
+			<a href="/home">Customer home</a>
+			<a href="/equipment">Equipment</a>
+			<a href="/cart">Cart</a>
+			<a href="/bookings">My bookings</a>
+			<a href="/store">Store operations</a>
+			<a href="/system">System administration</a>
+			<a href="/login">Sign in</a>
+			<a href="/">Project overview</a>
+		</nav>
+
 		<div class="footer-copy">
 			<strong>Built by Luuk Vlasblom</strong>
 			<span>© {currentYear} · Svelte 5, Go, PostgreSQL and Docker</span>
+			<a href="https://github.com/D3Duck/EquipmentTest" target="_blank" rel="noreferrer"
+				>View source on GitHub</a
+			>
 		</div>
-		<nav class="footer-links" aria-label="Footer navigation">
-			<a href="/">Home</a>
-			<a href="/equipment">Equipment</a>
-			<a href="https://github.com/D3Duck/EquipmentTest" target="_blank" rel="noreferrer">GitHub</a>
-		</nav>
 	</div>
 </footer>
 
 <style>
 	.site-footer {
-		border-top: 2px solid var(--ink);
-		background: #e6e3db;
+		border-top: 3px solid var(--brand);
+		background: var(--ink);
+		color: #d6dad7;
 	}
 
 	.footer-shell {
-		display: flex;
-		min-height: 6.5rem;
-		align-items: center;
-		justify-content: space-between;
-		gap: 2rem;
-		color: var(--muted);
-		font-size: 0.84rem;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: start;
+		gap: clamp(2rem, 6vw, 6rem);
+		padding-block: 2.25rem;
+		font-size: 0.8rem;
 	}
 
+	.footer-brand {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+	}
+
+	.footer-brand > span {
+		display: grid;
+		width: 2.45rem;
+		height: 2.45rem;
+		place-items: center;
+		border-left: 4px solid var(--brand);
+		background: #fff;
+		color: var(--ink);
+		font-family: ui-monospace, monospace;
+		font-size: 0.72rem;
+		font-weight: 750;
+	}
+
+	.footer-brand p,
 	.footer-copy {
 		display: grid;
-		gap: 0.25rem;
+		gap: 0.2rem;
+		margin: 0;
 	}
 
+	.footer-brand strong,
 	.footer-copy strong {
-		color: var(--navy);
+		color: #fff;
+	}
+
+	.footer-brand small {
+		color: #aeb5b0;
 	}
 
 	.footer-links {
-		display: flex;
-		align-items: center;
-		gap: 1.25rem;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.6rem 1.75rem;
 	}
 
-	.footer-links a {
-		font-weight: 650;
-		text-decoration: none;
+	.footer-links a,
+	.footer-copy a {
+		color: #d6dad7;
+		text-decoration-color: #747c77;
+		text-underline-offset: 0.2rem;
 	}
 
-	.footer-links a:hover {
-		color: var(--brand-dark);
+	.footer-links a:hover,
+	.footer-copy a:hover {
+		color: #fff;
+		text-decoration-color: var(--brand);
 	}
 
-	@media (max-width: 560px) {
+	.footer-copy {
+		justify-self: end;
+		text-align: right;
+	}
+
+	.footer-copy span {
+		color: #aeb5b0;
+	}
+
+	@media (max-width: 820px) {
 		.footer-shell {
-			align-items: flex-start;
-			flex-direction: column;
-			padding-block: 1.5rem;
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.footer-copy {
+			grid-column: 1 / -1;
+			justify-self: start;
+			padding-top: 1.25rem;
+			border-top: 1px solid #3b413e;
+			text-align: left;
+		}
+	}
+
+	@media (max-width: 540px) {
+		.footer-shell {
+			grid-template-columns: 1fr;
 		}
 
 		.footer-links {
-			flex-wrap: wrap;
+			grid-template-columns: 1fr;
+		}
+
+		.footer-copy {
+			grid-column: auto;
 		}
 	}
 </style>

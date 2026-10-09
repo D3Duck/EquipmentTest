@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { afterNavigate } from '$app/navigation';
+	import { page } from '$app/state';
 	import ToolCard from '#lib/components/ToolCard.svelte';
-	import type { Tool } from '#lib/types.ts';
+	import type { Tool, ToolCategory } from '#lib/types.ts';
 
 	const products: Tool[] = [
 		{
@@ -264,114 +266,602 @@
 			totalUnits: 6
 		}
 	];
+
+	const categoryNames: ToolCategory[] = [
+		'Tools',
+		'Cleaning',
+		'Garden',
+		'Site equipment',
+		'AV',
+		'Outdoor'
+	];
+
+	type CategoryFilter = 'All equipment' | ToolCategory;
+	type SortOption = 'name-asc' | 'rate-asc' | 'rate-desc' | 'stock-desc';
+
+	let searchQuery = $state(page.url.searchParams.get('q') ?? '');
+	let selectedCategory = $state<CategoryFilter>('All equipment');
+	let sortOption = $state<SortOption>('name-asc');
+
+	const requestedStart = page.url.searchParams.get('start') ?? '';
+	const requestedEnd = page.url.searchParams.get('end') ?? '';
+	const hasRequestedWindow =
+		isValidDate(requestedStart) && isValidDate(requestedEnd) && requestedEnd > requestedStart;
+
+	afterNavigate(() => {
+		searchQuery = page.url.searchParams.get('q') ?? '';
+	});
+
+	const categoryCounts = $derived(
+		categoryNames.map((name) => ({
+			name,
+			count: products.filter((product) => product.category === name).length
+		}))
+	);
+
+	const filteredProducts = $derived.by(() => {
+		const query = searchQuery.trim().toLowerCase();
+		const matches = products.filter((product) => {
+			const matchesCategory =
+				selectedCategory === 'All equipment' || product.category === selectedCategory;
+			const matchesQuery =
+				query.length === 0 ||
+				product.name.toLowerCase().includes(query) ||
+				product.description.toLowerCase().includes(query) ||
+				product.category.toLowerCase().includes(query) ||
+				product.assetCode.toLowerCase().includes(query);
+
+			return matchesCategory && matchesQuery;
+		});
+
+		return [...matches].sort((a, b) => {
+			switch (sortOption) {
+				case 'rate-asc':
+					return a.dailyRateCents - b.dailyRateCents;
+				case 'rate-desc':
+					return b.dailyRateCents - a.dailyRateCents;
+				case 'stock-desc':
+					return b.availableUnits - a.availableUnits;
+				default:
+					return a.name.localeCompare(b.name);
+			}
+		});
+	});
+
+	function formatDate(value: string) {
+		return new Intl.DateTimeFormat('en-AU', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		}).format(new Date(`${value}T00:00:00`));
+	}
+
+	function isValidDate(value: string) {
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+		return !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
+	}
+
+	function clearFilters() {
+		searchQuery = '';
+		selectedCategory = 'All equipment';
+		sortOption = 'name-asc';
+	}
 </script>
 
 <svelte:head>
 	<title>Equipment Catalogue · Equipment Hire</title>
 </svelte:head>
 
-<section class="section">
+<section class="catalog-intro">
 	<div class="container page-intro">
-		<p class="section-kicker">Catalogue / Sydney depot</p>
-		<h1>Equipment for the job ahead.</h1>
-		<p class="intro-copy">
-			Set your hire period to check live quantities across tools, cleaning, access, outdoor, and AV
-			equipment.
-		</p>
-
-		<div class="depot-strip" aria-label="Depot summary">
-			<span><strong>NEW</strong> just updated</span>
-			<span><strong>20</strong> products</span>
-			<span><strong>75</strong> tracked units</span>
-			<span><strong>07:00</strong> first collection</span>
+		<div>
+			<h1>Equipment</h1>
+			<p>Browse tools, cleaning equipment, site gear, outdoor equipment, and AV inventory.</p>
 		</div>
+		<p class="catalogue-summary"><strong>{products.length}</strong> products · Sydney depot</p>
 	</div>
 </section>
 
-{#if products.length > 0}
-	<section class="container product-grid">
-		{#each products as product (product.id)}
-			<ToolCard {product} />
+<section class="hire-window" aria-label="Hire period context">
+	<div class="container window-layout">
+		<div class="window-title">
+			<span aria-hidden="true">01</span>
+			<p><strong>Hire window</strong><small>Dates carried into this catalogue</small></p>
+		</div>
+		{#if hasRequestedWindow}
+			<dl>
+				<div>
+					<dt>Start</dt>
+					<dd>{formatDate(requestedStart)}</dd>
+				</div>
+				<div>
+					<dt>End</dt>
+					<dd>{formatDate(requestedEnd)}</dd>
+				</div>
+				<div>
+					<dt>Collection</dt>
+					<dd>Sydney depot</dd>
+				</div>
+			</dl>
+			<a href="/home">Change dates</a>
+		{:else}
+			<p class="window-empty">No dates selected. Quantities below show current demo stock.</p>
+			<a href="/home">Choose dates</a>
+		{/if}
+	</div>
+</section>
+
+<section class="container catalogue">
+	<details class="mobile-categories">
+		<summary>Categories <span>{selectedCategory}</span></summary>
+		<div class="mobile-category-list">
+			<button
+				type="button"
+				class:active={selectedCategory === 'All equipment'}
+				aria-pressed={selectedCategory === 'All equipment'}
+				onclick={() => (selectedCategory = 'All equipment')}
+			>
+				All equipment <span>{products.length}</span>
+			</button>
+			{#each categoryCounts as category (category.name)}
+				<button
+					type="button"
+					class:active={selectedCategory === category.name}
+					aria-pressed={selectedCategory === category.name}
+					onclick={() => (selectedCategory = category.name)}
+				>
+					{category.name} <span>{category.count}</span>
+				</button>
+			{/each}
+		</div>
+	</details>
+
+	<aside class="category-index" aria-label="Equipment categories">
+		<h2>Categories</h2>
+		<button
+			type="button"
+			class:active={selectedCategory === 'All equipment'}
+			aria-pressed={selectedCategory === 'All equipment'}
+			onclick={() => (selectedCategory = 'All equipment')}
+		>
+			<span>All equipment</span><strong>{products.length}</strong>
+		</button>
+		{#each categoryCounts as category (category.name)}
+			<button
+				type="button"
+				class:active={selectedCategory === category.name}
+				aria-pressed={selectedCategory === category.name}
+				onclick={() => (selectedCategory = category.name)}
+			>
+				<span>{category.name}</span><strong>{category.count}</strong>
+			</button>
 		{/each}
-	</section>
-{/if}
+		<p>Stock quantities are static demo data and are not yet checked against the selected dates.</p>
+	</aside>
+
+	<div class="results">
+		<div class="catalogue-tools">
+			<label class="search-field">
+				<span>Search within equipment</span>
+				<input
+					type="search"
+					placeholder="Name, category, or asset code"
+					bind:value={searchQuery}
+					aria-describedby="result-count"
+				/>
+			</label>
+
+			<label class="sort-field">
+				<span>Sort</span>
+				<select bind:value={sortOption}>
+					<option value="name-asc">Name A–Z</option>
+					<option value="rate-asc">Daily rate: low to high</option>
+					<option value="rate-desc">Daily rate: high to low</option>
+					<option value="stock-desc">Most stock available</option>
+				</select>
+			</label>
+		</div>
+
+		<div class="results-heading">
+			<p id="result-count" aria-live="polite">
+				<strong>{filteredProducts.length}</strong>
+				{filteredProducts.length === 1 ? 'product' : 'products'}
+				{selectedCategory !== 'All equipment' ? `in ${selectedCategory}` : ''}
+			</p>
+			{#if searchQuery || selectedCategory !== 'All equipment' || sortOption !== 'name-asc'}
+				<button type="button" onclick={clearFilters}>Clear filters</button>
+			{/if}
+		</div>
+
+		{#if products.length === 0}
+			<div class="empty-message">
+				<p><strong>No equipment is currently listed</strong></p>
+				<p>The catalogue has no customer-visible inventory.</p>
+			</div>
+		{:else if filteredProducts.length > 0}
+			<div class="product-grid">
+				{#each filteredProducts as product (product.id)}
+					<ToolCard {product} />
+				{/each}
+			</div>
+		{:else}
+			<div class="empty-message">
+				<p><strong>No equipment found</strong></p>
+				<p>Try a different search or return to the full catalogue.</p>
+				<button type="button" onclick={clearFilters}>Show all equipment</button>
+			</div>
+		{/if}
+	</div>
+</section>
 
 <style>
-	.page-intro h1 {
-		max-width: 12ch;
-		margin: 0;
-		color: var(--navy);
-		font-size: clamp(2.75rem, 6vw, 4.75rem);
-		font-weight: 850;
-		letter-spacing: -0.05em;
-		line-height: 0.98;
-	}
-
-	.intro-copy {
-		max-width: 38rem;
-		margin: 1rem 0 0;
-		color: var(--muted);
-		font-size: 1.05rem;
-		line-height: 1.7;
-	}
-
-	.depot-strip {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		max-width: 48rem;
-		margin-top: 2.5rem;
-		border: 2px solid var(--ink);
-		border-left: 8px solid var(--brand);
+	.catalog-intro {
+		padding: 2rem 0 1.5rem;
+		border-bottom: 1px solid var(--line);
 		background: var(--surface);
-		box-shadow: var(--shadow);
 	}
 
-	.depot-strip span {
-		display: grid;
-		gap: 0.25rem;
-		padding: 1rem 1.2rem;
-		border-right: 1px solid var(--line);
-		color: var(--muted);
-		font-size: 0.78rem;
-		font-weight: 700;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
+	.page-intro {
+		display: flex;
+		align-items: end;
+		justify-content: space-between;
+		gap: 2rem;
 	}
 
-	.depot-strip span:last-child {
-		border-right: 0;
-	}
-
-	.depot-strip strong {
+	.page-intro h1 {
+		margin: 0;
 		color: var(--ink);
-		font-family: ui-monospace, monospace;
+		font-size: clamp(2rem, 4vw, 2.35rem);
+		font-weight: 720;
+		letter-spacing: -0.035em;
+		line-height: 1.1;
+	}
+
+	.page-intro > div > p {
+		max-width: 42rem;
+		margin: 0.55rem 0 0;
+		color: var(--muted);
+		font-size: 0.95rem;
+	}
+
+	.catalogue-summary {
+		margin: 0;
+		color: var(--muted);
+		font-size: 0.8rem;
+		white-space: nowrap;
+	}
+
+	.catalogue-summary strong {
+		color: var(--ink);
 		font-size: 1.15rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.hire-window {
+		border-bottom: 1px solid var(--line-dark);
+		background: var(--ink);
+		color: #f4f3ef;
+	}
+
+	.window-layout {
+		display: flex;
+		min-height: 4.75rem;
+		align-items: center;
+		gap: clamp(1.5rem, 4vw, 4rem);
+	}
+
+	.window-title {
+		display: flex;
+		min-width: 13rem;
+		align-items: center;
+		gap: 0.8rem;
+	}
+
+	.window-title > span {
+		color: #d47c66;
+		font-family: ui-monospace, monospace;
+		font-size: 0.75rem;
+	}
+
+	.window-title p {
+		display: grid;
+		gap: 0.1rem;
+		margin: 0;
+	}
+
+	.window-title small,
+	.window-empty,
+	.window-layout dt {
+		color: #adb5b0;
+		font-size: 0.72rem;
+	}
+
+	.window-layout dl {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(9rem, 1fr));
+		flex: 1;
+		margin: 0;
+	}
+
+	.window-layout dl div {
+		padding: 0.35rem 1.25rem;
+		border-left: 1px solid #414744;
+	}
+
+	.window-layout dt,
+	.window-layout dd {
+		margin: 0;
+	}
+
+	.window-layout dd {
+		margin-top: 0.15rem;
+		font-size: 0.85rem;
+		font-weight: 650;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.window-empty {
+		flex: 1;
+		margin: 0;
+	}
+
+	.window-layout > a {
+		color: #fff;
+		font-size: 0.8rem;
+		font-weight: 650;
+		text-decoration-color: var(--brand);
+		text-underline-offset: 0.2rem;
+		white-space: nowrap;
+	}
+
+	.catalogue {
+		display: grid;
+		grid-template-columns: 13rem minmax(0, 1fr);
+		gap: clamp(2rem, 4vw, 3.5rem);
+		padding-block: 2rem 4rem;
+	}
+
+	.category-index {
+		align-self: start;
+		position: sticky;
+		top: 7.25rem;
+	}
+
+	.category-index h2 {
+		margin: 0 0 0.7rem;
+		color: var(--ink);
+		font-size: 0.82rem;
+	}
+
+	.category-index button,
+	.mobile-category-list button {
+		display: flex;
+		width: 100%;
+		min-height: 2.75rem;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.55rem 0.65rem;
+		border: 0;
+		border-bottom: 1px solid var(--line);
+		background: transparent;
+		color: var(--text);
+		font-size: 0.82rem;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.category-index button:first-of-type {
+		border-top: 1px solid var(--line-dark);
+	}
+
+	.category-index button:hover,
+	.category-index button.active,
+	.mobile-category-list button:hover,
+	.mobile-category-list button.active {
+		background: var(--surface);
+		box-shadow: inset 3px 0 0 var(--brand);
+		color: var(--ink);
+	}
+
+	.category-index button strong,
+	.mobile-category-list button span {
+		color: var(--muted);
+		font-size: 0.75rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.category-index > p {
+		margin: 1.25rem 0 0;
+		color: var(--muted);
+		font-size: 0.72rem;
+		line-height: 1.5;
+	}
+
+	.mobile-categories {
+		display: none;
+	}
+
+	.results {
+		min-width: 0;
+	}
+
+	.catalogue-tools {
+		display: grid;
+		grid-template-columns: minmax(16rem, 1fr) minmax(13rem, auto);
+		align-items: end;
+		gap: 1rem;
+	}
+
+	.search-field,
+	.sort-field {
+		display: grid;
+		gap: 0.4rem;
+		color: var(--ink);
+		font-size: 0.76rem;
+		font-weight: 650;
+	}
+
+	.search-field input,
+	.sort-field select {
+		height: var(--control-height);
+		padding: 0 0.8rem;
+		border: 1px solid var(--line-dark);
+		background: #fff;
+		color: var(--ink);
+	}
+
+	.results-heading {
+		display: flex;
+		min-height: 3.4rem;
+		align-items: end;
+		justify-content: space-between;
+		gap: 1rem;
+		padding-bottom: 0.75rem;
+	}
+
+	.results-heading p {
+		margin: 0;
+		color: var(--muted);
+		font-size: 0.8rem;
+	}
+
+	.results-heading p strong {
+		margin-right: 0.15rem;
+		color: var(--ink);
+		font-size: 1rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.results-heading button,
+	.empty-message button {
+		padding: 0.35rem 0;
+		border: 0;
+		background: transparent;
+		color: var(--brand-dark);
+		font-size: 0.78rem;
+		font-weight: 680;
+		text-decoration: underline;
+		text-underline-offset: 0.2rem;
+		cursor: pointer;
 	}
 
 	.product-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
-		gap: 1rem;
-		padding-bottom: 4.5rem;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		column-gap: clamp(1rem, 2.5vw, 2rem);
+	}
+
+	.empty-message {
+		padding: 3rem 0;
+		border-top: 1px solid var(--line-dark);
+		color: var(--muted);
+	}
+
+	.empty-message p {
+		margin: 0.25rem 0;
+	}
+
+	.empty-message strong {
+		color: var(--ink);
+		font-size: 1rem;
+	}
+
+	@media (max-width: 1100px) {
+		.product-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 820px) {
+		.window-layout {
+			flex-wrap: wrap;
+			gap: 0.75rem 1.5rem;
+			padding-block: 0.85rem;
+		}
+
+		.window-title {
+			width: 100%;
+		}
+
+		.window-layout dl {
+			order: 3;
+			width: 100%;
+			flex-basis: 100%;
+		}
+
+		.window-layout dl div:first-child {
+			border-left: 0;
+			padding-left: 0;
+		}
+
+		.catalogue {
+			display: block;
+			padding-top: 1.25rem;
+		}
+
+		.category-index {
+			display: none;
+		}
+
+		.mobile-categories {
+			display: block;
+			margin-bottom: 1rem;
+			border-top: 1px solid var(--line-dark);
+			border-bottom: 1px solid var(--line-dark);
+		}
+
+		.mobile-categories summary {
+			display: flex;
+			min-height: 3rem;
+			align-items: center;
+			justify-content: space-between;
+			font-size: 0.82rem;
+			font-weight: 680;
+			cursor: pointer;
+		}
+
+		.mobile-categories summary span {
+			color: var(--muted);
+			font-weight: 500;
+		}
+
+		.mobile-category-list {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			padding-bottom: 0.75rem;
+		}
+
+		.page-intro {
+			align-items: start;
+			flex-direction: column;
+			gap: 0.75rem;
+		}
 	}
 
 	@media (max-width: 600px) {
-		.depot-strip {
+		.catalogue-tools {
 			grid-template-columns: 1fr;
-		}
-
-		.depot-strip span {
-			border-right: 0;
-			border-bottom: 1px solid var(--line);
-		}
-
-		.depot-strip span:last-child {
-			border-bottom: 0;
 		}
 
 		.product-grid {
 			grid-template-columns: 1fr;
-			padding-bottom: 3.25rem;
+		}
+
+		.window-layout dl {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.window-layout dl div {
+			padding: 0.35rem 0.75rem;
+		}
+
+		.window-layout dl div:last-child {
+			display: none;
+		}
+
+		.mobile-category-list {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

@@ -8,17 +8,7 @@
 ## AWS image deployment
 
 GitHub Actions builds the backend Dockerfile (including Svelte) on pushes to `main`
-and publishes `ghcr.io/d3duck/equipmenttest:<full-commit-id>`. The workflow builds
-and publishes; it does not run the project's test suite or deploy automatically.
-Run the project's checks before pushing a release.
-
-After the first successful workflow, open the package on GitHub and change its
-visibility to Public. Public container images can be pulled anonymously. The
-public image must contain no secrets; `.env.aws` stays on EC2 and is not baked
-into the Dockerfile's explicit COPY paths.
-
-Wait for the workflow for the desired commit to succeed, then run through
-Systems Manager → AWS-RunShellScript:
+and publishes `ghcr.io/d3duck/equipmenttest:<full-commit-id>`.
 
 ```bash
 set -e
@@ -27,29 +17,31 @@ git pull --ff-only
 bash scripts/deploy-ec2.sh
 ```
 
-The script selects the image tagged with the checked-out commit, downloads it
-before stopping the backend, stops only the backend, backs up PostgreSQL,
-applies matching repository migrations, starts the downloaded image without
-building, and checks health. If the image is unavailable, the running app is
-untouched. If backup, migration, or startup fails after the stop, inspect the
-output before restarting the app. PostgreSQL and Caddy keep running.
+## AWS database backup to S3
+```bash
+set -e
+umask 077
 
-EC2 must already have Docker, Compose, git, curl and flock, along with its local
-`.env.aws`, `compose.https.yaml` and `Caddyfile`. Its source checkout must be on
-`main` and allow fast-forward updates. If main advances before the desired image
-has published, pull will fail safely; wait for that commit's workflow to finish.
+bucket="testequipment-backups"
 
-Routine deployments need no new AWS credentials or EC2 builds. Image publication
-uses the workflow's temporary `GITHUB_TOKEN` with `packages: write`.
+mkdir -p /var/backups/equipment
+backup="/var/backups/equipment/$(date -u +%Y%m%dT%H%M%SZ).dump"
 
-Backups are protected local files under `/var/backups/equipment`. Copy important
-backups to durable storage and manage retention: this instance has only an 8 GiB
-disk. Previous Docker images also consume space. Do not prune named volumes.
+docker exec equipment-postgres-1 sh -c \
+  'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' \
+  > "$backup"
 
-Commit tags identify releases but registry tags can be overwritten; use image
-digests if immutable release references are required. For rollback, choose the
-previous reviewed commit and its image, but verify compatibility with the current
-database first. Never automatically reverse migrations.
+test -s "$backup"
+
+aws s3 cp "$backup" \
+  "s3://$bucket/equipment/$(basename "$backup")" \
+  --region ap-southeast-2
+```
+
+
+
+
+
 
 ## Working Assumptions
 

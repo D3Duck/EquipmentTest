@@ -19,15 +19,15 @@ The initial product is solely an equipment-hire application. Uptime-monitor feat
 
 ## Roles and Permissions
 
-| Capability | Customer | Store administrator | System administrator |
-| --- | --- | --- | --- |
-| Browse equipment and availability | Yes | Yes | Yes |
-| Create and view own bookings | Yes | No | No |
-| Cancel own eligible bookings | Yes | No | No |
-| Manage catalogue, units, prices, and maintenance | No | Yes | No |
-| View and fulfil all bookings | No | Yes | No |
-| View demo access and audit information | No | No | Yes |
-| Reset the demo environment | No | No | Yes |
+| Capability                                       | Customer | Store administrator | System administrator |
+| ------------------------------------------------ | -------- | ------------------- | -------------------- |
+| Browse equipment and availability                | Yes      | Yes                 | Yes                  |
+| Create and view own bookings                     | Yes      | No                  | No                   |
+| Cancel own eligible bookings                     | Yes      | No                  | No                   |
+| Manage catalogue, units, prices, and maintenance | No       | Yes                 | No                   |
+| View and fulfil all bookings                     | No       | Yes                 | No                   |
+| View demo access and audit information           | No       | No                  | Yes                  |
+| Reset the demo environment                       | No       | No                  | Yes                  |
 
 Demo accounts:
 
@@ -43,6 +43,7 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 
 - Home
 - Equipment
+- Cart
 - My Bookings for customers
 - Store Management for store administrators
 - System Administration for system administrators
@@ -57,7 +58,8 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 
 ### Sign-in and Demo Reset
 
-- First-time visitors arrive at the home page, which includes a sign-in panel.
+- First-time visitors arrive at the portfolio overview and can enter the customer demo without signing in.
+- The dedicated sign-in page is linked from the global navigation and portfolio overview.
 - Demo credentials are displayed clearly below the form.
 - The seeded database includes catalogue products, physical units, customers, bookings, maintenance records, and audit events covering all important states.
 - Only the system administrator can trigger **Reset Demo**.
@@ -67,11 +69,16 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 
 ## Customer Workflows
 
-### Home — `/`
+### Portfolio Overview — `/`
 
-- Explain the equipment-hire workflow and the purpose of the portfolio project.
+- Explain the purpose and current scope of the portfolio project for prospective employers.
 - Link to the source repository.
 - Summarize the architecture, deployment, and notable implementation decisions.
+- Explain how to explore the public demo.
+
+### Customer Home — `/home`
+
+- Explain the equipment-hire and depot-collection workflow.
 - Provide a clear **Browse Equipment** call to action.
 
 ### Equipment Catalogue — `/equipment`
@@ -96,7 +103,7 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - Add the requested product, quantity, period, and current quoted price to the basket.
 - Display clear validation and availability errors.
 
-### Basket — `/equipment/basket`
+### Cart — `/cart`
 
 - Show all requested products, quantities, periods, unit prices, and totals.
 - Each basket item has its own hire period; changing a period revalidates that basket line.
@@ -104,7 +111,7 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - A basket does not reserve inventory.
 - Clearly state that availability and current prices will be checked again during checkout.
 
-### Simulated Checkout — `/equipment/checkout`
+### Simulated Checkout — `/checkout`
 
 - Label the page prominently as a simulation; no real payment data is collected, transmitted, or stored.
 - Use obviously fictional, pre-filled payment details.
@@ -112,7 +119,13 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - If inventory or a price changed, do not create a partial booking. Return the customer to a review state with a clear explanation.
 - On success, show a booking confirmation and clear the purchased basket lines.
 
-### My Bookings — `/equipment/bookings`
+### Booking Confirmation — `/checkout/confirmation`
+
+- Confirm that the simulated checkout completed and show the booking reference.
+- Summarize booked items, hire periods, totals, and depot collection details.
+- Link to the persistent booking detail and customer booking history.
+
+### My Bookings — `/bookings`
 
 - Separate upcoming/current and past bookings.
 - Show the booking reference, products, quantities, allocated units when applicable, hire period, total, and status.
@@ -120,7 +133,23 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - A booking cannot be customer-cancelled after collection or after its start time; a store administrator must resolve it.
 - Cancellation releases the reserved capacity immediately and creates an audit event.
 
+### Booking Details — `/bookings/:id`
+
+- Show one customer-owned booking with its item, price, allocation, period, and status history.
+- Expose eligible customer cancellation without revealing another customer's information.
+
 ## Store Management Workflows
+
+Store-administrator workflows use the `/store` workspace. The operational schedule and fulfilment
+pages represent depot employee work without introducing a separate authorization role.
+
+- `/store` — operational overview.
+- `/store/schedule` — collections, returns, overdue items, and conflicts.
+- `/store/bookings` and `/store/bookings/:id` — booking fulfilment and unit allocation.
+- `/store/inventory` — catalogue products and physical units.
+- `/store/inventory/products/:id` — product administration.
+- `/store/inventory/units/:id` — physical-unit state and history.
+- `/store/maintenance` — active, planned, and historical maintenance.
 
 ### Catalogue and Inventory
 
@@ -139,6 +168,13 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - Allow an administrator to record an exceptional cancellation after the normal customer cancellation deadline, including a reason.
 
 ## System Administration
+
+System-administrator workflows use the `/system` workspace:
+
+- `/system` — system-administration overview.
+- `/system/audit` — audit events.
+- `/system/access` — safe demo identity, role, session, and sign-in information.
+- `/system/demo` — protected demo reset.
 
 - View sign-in and important demo activity without exposing passwords or sensitive authentication data.
 - View the audit log, including actor, action, affected entity, timestamp, and relevant before/after values.

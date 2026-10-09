@@ -6,23 +6,32 @@
 		BlinkMacSystemFont,
 		'Segoe UI',
 		sans-serif;
-	color: #20231f;
-	background: #f2f0e9;
+	color: #303633;
+	background: #f3f1ea;
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
-	--ink: #20231f;
-	--muted: #656861;
-	--brand: #e6532f;
-	--brand-dark: #b83b20;
-	--brand-soft: #f9dfd5;
-	--navy: #20231f;
-	--surface: #fffdf8;
-	--surface-alt: #e7e5de;
-	--line: #c7c6bf;
-	--shadow: 5px 5px 0 rgba(32, 35, 31, 0.14);
-	--radius-sm: 0.2rem;
-	--radius-md: 0.35rem;
-	--radius-lg: 0.5rem;
+	font-size: 15px;
+	--canvas: #f3f1ea;
+	--ink: #1c211f;
+	--text: #303633;
+	--muted: #5e6661;
+	--brand: #c84a2f;
+	--brand-dark: #b33e25;
+	--brand-soft: #f2ded7;
+	--navy: #1c211f;
+	--surface: #fcfbf7;
+	--surface-alt: #e8e7e0;
+	--line: #c8ccc6;
+	--line-dark: #858c87;
+	--available: #267048;
+	--warning: #9b5b13;
+	--danger: #a33a32;
+	--shadow: none;
+	--radius-sm: 2px;
+	--radius-md: 4px;
+	--radius-lg: 4px;
+	--control-height: 2.8rem;
+	--page-gutter: clamp(1rem, 3vw, 2rem);
 }
 
 * {
@@ -37,7 +46,9 @@ body {
 	margin: 0;
 	min-width: 320px;
 	min-height: 100vh;
-	background: #f2f0e9;
+	background: var(--canvas);
+	color: var(--text);
+	line-height: 1.47;
 }
 
 button,
@@ -56,40 +67,41 @@ a {
 	color: inherit;
 }
 
+button,
+input,
+select {
+	border-radius: var(--radius-sm);
+}
+
+input::placeholder {
+	color: #737b76;
+}
+
 svg {
 	display: block;
 }
 
 .container {
-	width: min(100% - 2rem, 74rem);
+	width: min(calc(100% - (2 * var(--page-gutter))), 90rem);
 	margin-inline: auto;
 }
 
 .section {
-	padding: 4.5rem 0;
-}
-
-.section-kicker {
-	margin: 0 0 1rem;
-	color: var(--brand-dark);
-	font-size: 0.78rem;
-	font-weight: 800;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
+	padding: clamp(2.75rem, 5vw, 4.5rem) 0;
 }
 
 :focus-visible {
-	outline: 3px solid rgba(230, 83, 47, 0.4);
-	outline-offset: 3px;
+	outline: 3px solid var(--brand);
+	outline-offset: 2px;
 }
 
 @media (max-width: 560px) {
 	.container {
-		width: min(100% - 1.25rem, 74rem);
+		width: min(calc(100% - 2rem), 90rem);
 	}
 
 	.section {
-		padding: 3.25rem 0;
+		padding: 2.75rem 0;
 	}
 }
 
