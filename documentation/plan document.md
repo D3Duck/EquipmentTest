@@ -4,7 +4,11 @@ A practical equipment-hire application built as a portfolio project. It should d
 
 ## Product Scope
 
-The application lets customers browse equipment, select a hire period and quantity, complete a simulated checkout, and manage their bookings. Store administrators manage catalogue listings, physical equipment units, prices, maintenance, and booking fulfilment. System administrators manage the shared demo environment and can inspect audit information.
+The application lets customers browse equipment, select a hire period and quantity, complete a
+simulated checkout, and manage their bookings. Employees handle day-to-day booking fulfilment and
+customer service. Store administrators additionally manage catalogue listings, physical equipment
+units, prices, and maintenance. System administrators are master administrators for the shared demo
+environment.
 
 The initial product is solely an equipment-hire application. Uptime-monitor features and data are not part of its domain.
 
@@ -13,25 +17,32 @@ The initial product is solely an equipment-hire application. Uptime-monitor feat
 - Use a small but varied catalogue with enough dummy data to demonstrate every workflow and state.
 - Do not support public registration, real payments, email notifications, refunds, or advanced business reporting initially.
 - Customers request a product and quantity; they do not choose individual physical units.
-- Store administrators allocate physical units automatically or manually before collection.
+- Employees, store administrators, and system administrators allocate physical units automatically
+  or manually before collection.
 - The interface must be responsive and support light and dark themes.
 - Use lightweight project-owned CSS with reusable design tokens and components; do not depend on a CSS framework.
 
 ## Roles and Permissions
 
-| Capability                                       | Customer | Store administrator | System administrator |
-| ------------------------------------------------ | -------- | ------------------- | -------------------- |
-| Browse equipment and availability                | Yes      | Yes                 | Yes                  |
-| Create and view own bookings                     | Yes      | No                  | No                   |
-| Cancel own eligible bookings                     | Yes      | No                  | No                   |
-| Manage catalogue, units, prices, and maintenance | No       | Yes                 | No                   |
-| View and fulfil all bookings                     | No       | Yes                 | No                   |
-| View demo access and audit information           | No       | No                  | Yes                  |
-| Reset the demo environment                       | No       | No                  | Yes                  |
+`store_admin` includes the employee permissions. `system_admin` is the master administrator and
+inherits every application permission, including store administration.
+
+| Capability                                       | Customer | Employee | Store admin | System admin |
+| ------------------------------------------------ | -------- | -------- | ----------- | ------------ |
+| Browse equipment and availability                | Yes      | Yes      | Yes         | Yes          |
+| Create and view own bookings                     | Yes      | No       | No          | Yes          |
+| Cancel own eligible bookings                     | Yes      | No       | No          | Yes          |
+| View customer details and all bookings           | No       | Yes      | Yes         | Yes          |
+| Allocate, collect, and return hired items        | No       | Yes      | Yes         | Yes          |
+| Record exceptional booking corrections           | No       | No       | Yes         | Yes          |
+| Manage catalogue, units, prices, and maintenance | No       | No       | Yes         | Yes          |
+| View demo access and audit information           | No       | No       | No          | Yes          |
+| Reset the demo environment                       | No       | No       | No          | Yes          |
 
 Demo accounts:
 
 - `customer1` and `customer2`
+- `employee`
 - `storeadmin`
 - `admin`
 
@@ -45,7 +56,8 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - Equipment
 - Cart
 - My Bookings for customers
-- Store Management for store administrators
+- Store Operations for employees, store administrators, and system administrators
+- Catalogue Administration for store administrators and system administrators
 - System Administration for system administrators
 - GitHub repository
 - Current demo account and sign-out action
@@ -138,10 +150,12 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - Show one customer-owned booking with its item, price, allocation, period, and status history.
 - Expose eligible customer cancellation without revealing another customer's information.
 
-## Store Management Workflows
+## Store Operations and Administration
 
-Store-administrator workflows use the `/store` workspace. The operational schedule and fulfilment
-pages represent depot employee work without introducing a separate authorization role.
+Employees, store administrators, and system administrators use the `/store` workspace. Employees
+handle day-to-day customer, collection, return, and allocation work. Store administrators inherit
+those permissions and additionally manage the catalogue, prices, physical units, and maintenance.
+System administrators inherit all store permissions.
 
 - `/store` — operational overview.
 - `/store/schedule` — collections, returns, overdue items, and conflicts.
@@ -153,6 +167,8 @@ pages represent depot employee work without introducing a separate authorization
 
 ### Catalogue and Inventory
 
+These actions require `store_admin` or `system_admin`.
+
 - Add and edit products, including descriptions, categories, images, prices, and visibility.
 - Add and edit physical units with a unique asset number.
 - Mark a unit as available, in maintenance, or retired.
@@ -161,6 +177,10 @@ pages represent depot employee work without introducing a separate authorization
 
 ### Booking Fulfilment
 
+Employees, store administrators, and system administrators may view customer details, allocate
+units, and record collection and return. Exceptional corrections and cancellations require
+`store_admin` or `system_admin`.
+
 - View and filter all bookings.
 - Allocate suitable physical units to booked quantities without double allocation.
 - Move booking items through `reserved`, `collected`, `returned`, or `cancelled` states.
@@ -168,6 +188,9 @@ pages represent depot employee work without introducing a separate authorization
 - Allow an administrator to record an exceptional cancellation after the normal customer cancellation deadline, including a reason.
 
 ## System Administration
+
+The `system_admin` role is the master administrator. It can perform every employee and store-admin
+action in addition to the system-only workflows below.
 
 System-administrator workflows use the `/system` workspace:
 
@@ -240,6 +263,7 @@ Show a bottom-right notification when another user's action changes availability
 
 - Svelte 5 provides the frontend.
 - Go with Fiber serves the JSON API, WebSocket endpoint, and built frontend.
+- sqlc generates the typed pgx/v5 data-access layer from reviewed PostgreSQL queries.
 - PostgreSQL stores application data and enforces critical booking invariants.
 - Atlas manages versioned database migrations.
 - Docker Compose runs the application services locally and in suitable deployment environments.
@@ -289,7 +313,7 @@ The application is ready to demonstrate when all of the following are true:
 - Cancelling an eligible booking immediately restores availability.
 - Units in maintenance or retired state are never offered as available.
 - A unit cannot be allocated to overlapping bookings.
-- Store and system administration endpoints reject unauthorized roles on the server.
+- Employee, store-admin, and system-admin endpoints enforce their role boundaries on the server.
 - Price changes do not alter historical booking totals and are surfaced to customers before checkout.
 - Collection, return, and overdue behaviour is visible and auditable.
 - No real card information is requested, transmitted, or stored.

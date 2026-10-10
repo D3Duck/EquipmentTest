@@ -2,6 +2,29 @@
 	let startDate = $state('');
 	let endDate = $state('');
 	const minimumEndDate = $derived(startDate ? nextDate(startDate) : undefined);
+	const featuredProducts = [
+		{
+			id: '5fa1f462-6810-4d06-88bd-057ad459991d',
+			name: '18V Cordless Drill Kit',
+			code: 'TL-014',
+			rate: '$28/day',
+			image: '/images/products/Cordless_drill_with_drill-bit_case_20261007221651.jpg'
+		},
+		{
+			id: '2bcbb527-cdfa-4050-b1d7-334bd52faf0a',
+			name: '4000-Lumen HD Projector',
+			code: 'AV-019',
+			rate: '$89/day',
+			image: '/images/products/Compact_digital_projector_with_r…_20261007221651.jpg'
+		},
+		{
+			id: '80314739-5cf1-4ab7-98d7-ab689e40efbc',
+			name: 'Four-Person Dome Tent',
+			code: 'OD-021',
+			rate: '$44/day',
+			image: '/images/products/Modern_camping_dome_tent_pitched_20261007221651.jpg'
+		}
+	];
 
 	function nextDate(value: string) {
 		const [year, month, day] = value.split('-').map(Number);
@@ -46,18 +69,24 @@
 			</dl>
 		</div>
 
-		<figure class="hero-product">
-			<img
-				src="/images/products/Floor_sander_on_grey_background_20261007221651.jpg"
-				alt="Orbital floor sander available for hire"
-				width="1200"
-				height="896"
-			/>
-			<figcaption>
-				<span><strong>Orbital floor sander</strong> FL-004 · current demo stock: 1 of 2</span>
-				<strong>$86/day</strong>
-			</figcaption>
-		</figure>
+		<aside class="featured-equipment" aria-labelledby="featured-equipment-heading">
+			<div class="featured-heading">
+				<span aria-hidden="true">Featured</span>
+				<h2 id="featured-equipment-heading">Popular at the depot</h2>
+			</div>
+			<div class="featured-list">
+				{#each featuredProducts as product (product.id)}
+					<a class="featured-product" href={`/equipment/products/${product.id}`}>
+						<img src={product.image} alt="" width="1200" height="896" />
+						<span>
+							<strong>{product.name}</strong>
+							<small>{product.code} · {product.rate}</small>
+						</span>
+						<span class="featured-arrow" aria-hidden="true">→</span>
+					</a>
+				{/each}
+			</div>
+		</aside>
 	</div>
 
 	<div class="container">
@@ -154,8 +183,8 @@
 
 	.hero-layout {
 		display: grid;
-		grid-template-columns: minmax(0, 1.05fr) minmax(20rem, 0.72fr);
-		align-items: end;
+		grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.62fr);
+		align-items: center;
 		gap: clamp(2.5rem, 6vw, 5.5rem);
 	}
 
@@ -238,43 +267,85 @@
 		font-weight: 680;
 	}
 
-	.hero-product {
-		margin: 0;
+	.featured-equipment {
 		border: 1px solid var(--line-dark);
+		background: var(--surface);
+	}
+
+	.featured-heading {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.7rem 0.8rem;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.featured-heading span {
+		color: var(--brand-dark);
+		font-family: ui-monospace, monospace;
+		font-size: 0.68rem;
+		text-transform: uppercase;
+	}
+
+	.featured-heading h2 {
+		margin: 0;
+		color: var(--ink);
+		font-size: 0.85rem;
+	}
+
+	.featured-list {
+		display: grid;
+	}
+
+	.featured-product {
+		display: grid;
+		grid-template-columns: 5.75rem minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 0.75rem;
+		min-height: 5rem;
+		padding: 0.45rem 0.7rem 0.45rem 0.45rem;
+		border-bottom: 1px solid var(--line);
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.featured-product:last-child {
+		border-bottom: 0;
+	}
+
+	.featured-product:hover {
+		background: var(--surface-alt);
+	}
+
+	.featured-product img {
+		display: block;
+		width: 5.75rem;
+		height: 4.2rem;
+		object-fit: contain;
 		background: #eef0ef;
 	}
 
-	.hero-product img {
-		display: block;
-		width: 100%;
-		height: auto;
-		aspect-ratio: 4 / 3;
-		object-fit: contain;
-	}
-
-	.hero-product figcaption {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 0.85rem 1rem;
-		border-top: 1px solid var(--line);
-		font-size: 0.82rem;
-	}
-
-	.hero-product figcaption span {
+	.featured-product > span:not(.featured-arrow) {
 		display: grid;
-		gap: 0.15rem;
-		color: var(--muted);
+		min-width: 0;
+		gap: 0.2rem;
 	}
 
-	.hero-product figcaption span strong {
+	.featured-product strong {
 		color: var(--ink);
+		font-size: 0.82rem;
+		line-height: 1.25;
 	}
 
-	.hero-product figcaption > strong {
-		white-space: nowrap;
-		font-size: 1rem;
+	.featured-product small {
+		color: var(--muted);
+		font-size: 0.7rem;
+	}
+
+	.featured-arrow {
+		color: var(--brand-dark);
+		font-weight: 750;
 	}
 
 	.availability-search {
@@ -427,8 +498,29 @@
 			grid-template-columns: 1fr;
 		}
 
-		.hero-product {
-			max-width: 38rem;
+		.featured-equipment {
+			max-width: 44rem;
+		}
+
+		.featured-list {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		.featured-product {
+			grid-template-columns: 1fr auto;
+			align-items: start;
+		}
+
+		.featured-product:not(:last-child) {
+			border-right: 1px solid var(--line);
+			border-bottom: 0;
+		}
+
+		.featured-product img {
+			grid-column: 1 / -1;
+			width: 100%;
+			height: auto;
+			aspect-ratio: 4 / 3;
 		}
 
 		.availability-search {
@@ -458,6 +550,27 @@
 
 		.depot-summary dd {
 			margin: 0;
+		}
+
+		.featured-list {
+			grid-template-columns: 1fr;
+		}
+
+		.featured-product {
+			grid-template-columns: 5.75rem minmax(0, 1fr) auto;
+			align-items: center;
+		}
+
+		.featured-product:not(:last-child) {
+			border-right: 0;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.featured-product img {
+			grid-column: auto;
+			width: 5.75rem;
+			height: 4.2rem;
+			aspect-ratio: auto;
 		}
 
 		.availability-search {

@@ -4,7 +4,6 @@
 
 -ltnp 'sport = :8090'
 
-
 ## AWS image deployment
 
 GitHub Actions builds the backend Dockerfile (including Svelte) on pushes to `main`
@@ -18,6 +17,7 @@ bash scripts/deploy-ec2.sh
 ```
 
 ## AWS database backup to S3
+
 ```bash
 set -e
 umask 077
@@ -37,11 +37,6 @@ aws s3 cp "$backup" \
   "s3://$bucket/equipment/$(basename "$backup")" \
   --region ap-southeast-2
 ```
-
-
-
-
-
 
 ## Working Assumptions
 
@@ -66,6 +61,21 @@ If the eventual project layout or variable names change, update this document an
 9. Review the complete diff and commit the application code, migration, `atlas.sum`, tests, and documentation together.
 
 Do not commit application code that depends on a schema migration without also committing that migration.
+
+## SQLC Query Workflow
+
+PostgreSQL application queries live in `backend/database/queries`. Generated pgx/v5 code lives in
+`backend/database/generated` and is committed so application builds do not need the sqlc tool.
+
+After changing a query or a schema object used by a query, run from `backend/`:
+
+```bash
+go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1 generate
+```
+
+Review the generated diff and run `go test ./...`. Do not edit files in
+`backend/database/generated` manually. The schema inputs are listed explicitly in
+`backend/sqlc.yaml`; add each new schema migration that changes objects used by sqlc queries.
 
 ## Changes Without Development Downtime
 

@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import GitHubIcon from './GitHubIcon.svelte';
 
 	let menuOpen = $state(false);
 
 	const navItems = [
+		{ href: '/', label: 'Overview' },
 		{ href: '/home', label: 'Home' },
 		{ href: '/equipment', label: 'Equipment' },
 		{ href: '/bookings', label: 'My bookings' }
@@ -17,11 +19,13 @@
 <header class="site-header">
 	<div class="service-rail">
 		<div class="container service-content">
-			<p><strong>Sydney depot</strong><span>Collection from 7:00 am</span></p>
 			<nav aria-label="Project links">
 				<a href="/">Portfolio overview</a>
-				<a href="https://github.com/D3Duck/EquipmentTest" target="_blank" rel="noreferrer"
-					>Source code</a
+				<a
+					class="github-link"
+					href="https://github.com/D3Duck/EquipmentTest"
+					target="_blank"
+					rel="noreferrer"><GitHubIcon /> <span>Source code</span></a
 				>
 			</nav>
 		</div>
@@ -29,7 +33,7 @@
 
 	<div class="container nav-shell">
 		<a class="brand" href="/home" aria-label="Equipment Hire customer home">
-			<span class="brand-mark" aria-hidden="true">E/H</span>
+			<span class="brand-mark" aria-hidden="true">EH</span>
 			<span class="brand-copy">Equipment Hire <small>Sydney depot</small></span>
 		</a>
 
@@ -55,13 +59,14 @@
 				id="header-search"
 				name="q"
 				type="search"
-				placeholder="Search equipment or code"
+				placeholder="Search equipment name or code"
 				value={page.url.searchParams.get('q') ?? ''}
 			/>
 		</form>
 
-		<a class="cart-link" href="/cart" aria-current={isCurrent('/cart') ? 'page' : undefined}>Cart</a
-		>
+		<a class="cart-link" href="/cart" aria-current={isCurrent('/cart') ? 'page' : undefined}>
+			Cart
+		</a>
 		<a class="sign-in" href="/login">Sign in</a>
 
 		<button
@@ -110,6 +115,13 @@
 		<a class="nav-link" href="/cart" onclick={() => (menuOpen = false)}>Cart</a>
 		<a class="nav-link" href="/login" onclick={() => (menuOpen = false)}>Sign in</a>
 		<a class="nav-link secondary" href="/" onclick={() => (menuOpen = false)}>Portfolio overview</a>
+		<a
+			class="nav-link secondary github-link"
+			href="https://github.com/D3Duck/EquipmentTest"
+			target="_blank"
+			rel="noreferrer"
+			onclick={() => (menuOpen = false)}><GitHubIcon /> <span>Source code</span></a
+		>
 	</nav>
 </header>
 
@@ -137,7 +149,6 @@
 		font-size: 0.74rem;
 	}
 
-	.service-content p,
 	.service-content nav {
 		display: flex;
 		align-items: center;
@@ -145,13 +156,15 @@
 		margin: 0;
 	}
 
-	.service-content p span {
-		color: #bfc4c0;
-	}
-
 	.service-content a {
 		color: #d9dcd9;
 		text-decoration: none;
+	}
+
+	.github-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
 	}
 
 	.service-content a:hover {
@@ -396,8 +409,7 @@
 	}
 
 	@media (max-width: 600px) {
-		.service-content nav,
-		.service-content p span {
+		.service-content nav {
 			display: none;
 		}
 

@@ -1,16 +1,35 @@
 export type UUID = string;
 
-export type ToolCategory = 'AV' | 'Cleaning' | 'Garden' | 'Outdoor' | 'Site equipment' | 'Tools';
-
-export type Tool = {
+export type CatalogueCategory = {
 	id: UUID;
+	slug: string;
+	name: string;
+};
+
+export type ProductImage = {
+	id: UUID;
+	path: string;
+	alt_text: string;
+	sort_order: number;
+};
+
+export type HirePeriod = {
+	start: string;
+	end: string;
+};
+
+export type EquipmentProduct = {
+	id: UUID;
+	catalogue_code: string;
 	name: string;
 	description: string;
-	photoID: UUID;
-	imageUrl: string;
-	assetCode: string;
-	category: ToolCategory;
-	dailyRateCents: number;
-	availableUnits: number;
-	totalUnits: number;
+	specifications: Record<string, string>;
+	daily_rate_cents: number;
+	hire_terms: string | null;
+	category: CatalogueCategory;
+	images: ProductImage[];
+	total_units: number;
+	operational_units: number;
+	available_units: number;
+	availability_period: HirePeriod | null;
 };

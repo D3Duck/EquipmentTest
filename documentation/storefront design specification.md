@@ -17,7 +17,8 @@ The frontend remains Svelte 5, TypeScript, and project-owned CSS. Bootstrap and 
 - Put product, price, stock, and hire-period information before promotional content.
 - Use alignment and fine separators for hierarchy instead of shadows and collections of floating cards.
 - Reserve the accent colour for selection, focus, and primary actions.
-- Keep claims tied to implemented data. Static stock must not be described as date-aware or live.
+- Keep storefront claims tied to implemented data. The portfolio case study is written from the
+  completed-project perspective so it describes the intended finished system during development.
 - Keep controls compact while preserving 44px touch targets and clear keyboard focus.
 - Use the same spacing, typography, borders, and state language across every customer-facing route.
 
@@ -70,7 +71,19 @@ The header has two compact levels:
 1. A service rail containing depot context and portfolio/source links.
 2. The customer-store header containing the E/H mark, Home, Equipment, catalogue search, and sign-in.
 
-The wordmark returns to the customer home. Portfolio navigation is deliberately secondary so the store remains the primary product. Equipment, customer bookings, cart, and sign-in form the customer navigation. Store Operations and System Administration remain secondary until role-aware navigation is implemented.
+The wordmark returns to the customer home. Portfolio navigation is deliberately secondary so the
+store remains the primary product. Equipment, customer bookings, cart, and sign-in form the customer
+navigation. Store Operations, Catalogue Administration, and System Administration remain secondary
+until role-aware navigation is implemented.
+
+## Portfolio Overview
+
+The root route is an employer-facing engineering case study, separate from the customer storefront.
+It uses a compact technical-document layout rather than a marketing hero or feature cards. Heading
+sizes and section spacing stay close to README/documentation conventions. It explains the problem
+model, architecture, technology choices, difficult and straightforward implementation work, testing,
+delivery, and retrospective lessons in the first person. Links into the working demo and source
+repository remain visible without dominating the technical account.
 
 ## Product Catalogue
 
@@ -87,15 +100,19 @@ Product entries present information in this order:
 1. Complete, uncropped product image.
 2. Category and asset code.
 3. Product name.
-4. Short factual description.
-5. Daily rate.
-6. Current demo-stock quantity.
+4. Daily rate.
+5. Current demo-stock quantity.
 
-Specifications will appear between description and rate when the catalogue API provides them. No placeholder specifications are invented.
+Descriptions and specifications belong on the product detail page so the catalogue can remain dense
+and scannable. No placeholder specifications are invented.
 
 ## Product Detail Direction
 
-The future detail page will use a two-column layout with imagery on the left and rental configuration on the right. The configuration order is rate, dates, quantity, availability response, and basket action. Specifications use a technical two-column table. Hire terms remain structured text rather than decorative panels.
+The product detail page uses a two-column layout with compact reference imagery on the left and a
+dominant rental configuration area on the right. The configuration order is rate, dates, quantity,
+availability response, and estimate.
+Specifications use a technical two-column table. Hire terms remain structured text rather than
+decorative panels. Basket actions remain explicitly unavailable until the basket API is implemented.
 
 ## Signature Decisions
 
@@ -105,7 +122,8 @@ The future detail page will use a two-column layout with imagery on the left and
 
 ## Responsive and State Rules
 
-- Desktop uses a category rail and three product columns.
+- Wide desktop uses a category rail and five product columns, reducing to four and then three as the
+  viewport narrows.
 - Tablet uses two product columns with filters above the results.
 - Mobile uses one column and an expandable category control.
 - Long names wrap without changing the rate and stock alignment.
@@ -116,12 +134,15 @@ The future detail page will use a two-column layout with imagery on the left and
 
 ## Current Implementation Boundary
 
-The current catalogue data is client-side and the backend exposes no catalogue or availability API. The implemented page may search, filter, and sort the existing products, and may preserve requested dates in the URL. It must label quantities as current demo stock rather than live or period-qualified availability.
+The catalogue and product detail pages load the public catalogue API. When a valid hire window is
+present, quantities are period-qualified availability; without one, they represent currently
+operational stock. Both pages keep loading, empty, validation, and server-error states explicit.
 
 The remaining workflow routes exist as plain developer placeholders:
 
-- Customer: product detail, cart, checkout, confirmation, booking list, and booking detail.
-- Store operations: schedule, fulfilment, inventory, product, physical unit, and maintenance.
+- Customer: cart, checkout, confirmation, booking list, and booking detail.
+- Store operations: employee schedule and fulfilment, plus store-admin inventory, product, physical
+  unit, price, and maintenance management.
 - System administration: audit events, access, and protected demo reset.
 - Shared states: access denied and the application error page.
 

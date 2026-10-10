@@ -1,2 +1,4 @@
-h1:8wuN3eIQt7ZNJF9aTrOdgsu7sEO3gF+8DfjpFgxpEmw=
+h1:D0JDUTYReeAYwy2ao0Aj2H0tvZq98MX6cfAI2SQ2ogY=
 20261008062252_initial_schema.sql h1:RsDDSeg1Yk1fVd7aWXY8GJYggwCgRThckFflbd+MVzU=
+20261009090000_add_catalogue_code.sql h1:R+3VE+zMCQhTStt2MpUKLJUnz12fO89AX24DkPven9o=
+20261009091000_seed_demo_catalogue.sql h1:ivPvin/OjONJ8b4ss2GQ/OlmA6tvZLnHTeA/NPLAbcw=

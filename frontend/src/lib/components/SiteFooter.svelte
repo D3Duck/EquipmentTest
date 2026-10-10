@@ -1,4 +1,6 @@
 <script lang="ts">
+	import GitHubIcon from './GitHubIcon.svelte';
+
 	const currentYear = new Date().getFullYear();
 </script>
 
@@ -23,8 +25,11 @@
 		<div class="footer-copy">
 			<strong>Built by Luuk Vlasblom</strong>
 			<span>© {currentYear} · Svelte 5, Go, PostgreSQL and Docker</span>
-			<a href="https://github.com/D3Duck/EquipmentTest" target="_blank" rel="noreferrer"
-				>View source on GitHub</a
+			<a
+				class="github-link"
+				href="https://github.com/D3Duck/EquipmentTest"
+				target="_blank"
+				rel="noreferrer"><GitHubIcon /> <span>View source on GitHub</span></a
 			>
 		</div>
 	</div>
@@ -105,8 +110,15 @@
 		text-align: right;
 	}
 
-	.footer-copy span {
+	.footer-copy > span {
 		color: #aeb5b0;
+	}
+
+	.github-link {
+		display: inline-flex;
+		align-items: center;
+		justify-self: end;
+		gap: 0.35rem;
 	}
 
 	@media (max-width: 820px) {
@@ -120,6 +132,10 @@
 			padding-top: 1.25rem;
 			border-top: 1px solid #3b413e;
 			text-align: left;
+		}
+
+		.github-link {
+			justify-self: start;
 		}
 	}
 

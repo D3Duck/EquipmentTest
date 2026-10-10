@@ -3,7 +3,7 @@ schema "public" {
 
 enum "user_role" {
   schema = schema.public
-  values = ["customer", "store_administrator", "system_administrator"]
+  values = ["customer", "employee", "store_admin", "system_admin"]
 }
 
 enum "unit_operational_state" {
@@ -175,6 +175,9 @@ table "equipment_products" {
   column "category_id" {
     type = uuid
   }
+  column "catalogue_code" {
+    type = varchar(50)
+  }
   column "name" {
     type = varchar(160)
   }
@@ -217,11 +220,18 @@ table "equipment_products" {
   index "equipment_products_category_id_idx" {
     columns = [column.category_id]
   }
+  index "equipment_products_catalogue_code_key" {
+    unique  = true
+    columns = [column.catalogue_code]
+  }
   index "equipment_products_visible_idx" {
     columns = [column.is_visible]
   }
   check "equipment_products_name_not_blank" {
     expr = "btrim(name) <> ''"
+  }
+  check "equipment_products_catalogue_code_format" {
+    expr = "catalogue_code ~ '^[A-Z0-9]+(?:-[A-Z0-9]+)*$'"
   }
   check "equipment_products_description_not_blank" {
     expr = "btrim(description) <> ''"

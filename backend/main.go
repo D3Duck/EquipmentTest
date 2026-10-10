@@ -47,7 +47,7 @@ func main() {
 	defer Pool.Close()
 
 	// - - - SERVER SETUP - - -
-	routes.SetupRoutes(app)
+	routes.SetupRoutes(app, Pool)
 
 	// - - - FRONTEND - - -
 	shared.LogInfo("Loading frontend")

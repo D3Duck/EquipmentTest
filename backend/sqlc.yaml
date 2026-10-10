@@ -1,0 +1,19 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    schema:
+      - "database/migrations/20261008062252_initial_schema.sql"
+      - "database/migrations/20261009090000_add_catalogue_code.sql"
+    queries: "database/queries"
+    gen:
+      go:
+        package: "generated"
+        out: "database/generated"
+        sql_package: "pgx/v5"
+        emit_interface: true
+        emit_json_tags: true
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
