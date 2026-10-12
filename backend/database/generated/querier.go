@@ -8,12 +8,19 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
+	CreateAuthSession(ctx context.Context, arg CreateAuthSessionParams) (CreateAuthSessionRow, error)
+	DeleteAuthSession(ctx context.Context, tokenHash []byte) error
+	FindActiveAuthUserByUsername(ctx context.Context, username string) (FindActiveAuthUserByUsernameRow, error)
+	GetAuthSessionByTokenHash(ctx context.Context, arg GetAuthSessionByTokenHashParams) (GetAuthSessionByTokenHashRow, error)
 	GetCatalogueProduct(ctx context.Context, arg GetCatalogueProductParams) (GetCatalogueProductRow, error)
 	ListCatalogueProducts(ctx context.Context, arg ListCatalogueProductsParams) ([]ListCatalogueProductsRow, error)
 	ListProductImages(ctx context.Context, productIds []uuid.UUID) ([]ListProductImagesRow, error)
+	RefreshAuthSession(ctx context.Context, arg RefreshAuthSessionParams) (pgtype.Timestamptz, error)
+	TouchAuthSession(ctx context.Context, arg TouchAuthSessionParams) error
 }
 
 var _ Querier = (*Queries)(nil)

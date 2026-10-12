@@ -1,10 +1,19 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { applySession, defaultPathForRole, type AuthSession } from '#lib/auth.ts';
 
 	let username = $state('');
 	let password = $state('');
 	let errorMessage = $state('');
 	let isSubmitting = $state(false);
+	const demoAccounts = [
+		{ username: 'customer1', label: 'Customer' },
+		{ username: 'customer2', label: 'Customer 2' },
+		{ username: 'employee', label: 'Employee' },
+		{ username: 'storeadmin', label: 'Store admin' },
+		{ username: 'admin', label: 'System admin' }
+	];
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
@@ -26,12 +35,29 @@
 				return;
 			}
 
-			await goto('/equipment');
+			const session = (await response.json()) as AuthSession;
+			applySession(session);
+			password = '';
+			const requestedPath = page.url.searchParams.get('next');
+			const destination = safeLocalPath(requestedPath)
+				? requestedPath
+				: defaultPathForRole(session.user.role);
+			await goto(destination);
 		} catch {
 			errorMessage = 'The server could not be reached. Please try again.';
 		} finally {
 			isSubmitting = false;
 		}
+	}
+
+	function useDemoAccount(selectedUsername: string) {
+		username = selectedUsername;
+		password = 'password';
+		errorMessage = '';
+	}
+
+	function safeLocalPath(value: string | null): value is string {
+		return Boolean(value?.startsWith('/') && !value.startsWith('//'));
 	}
 </script>
 
@@ -82,6 +108,18 @@
 				{isSubmitting ? 'Signing in…' : 'Sign in'}
 			</button>
 		</form>
+
+		<div class="demo-access">
+			<h2>Demo accounts</h2>
+			<p>Every account uses the fictional password <code>password</code>.</p>
+			<div class="demo-grid">
+				{#each demoAccounts as account (account.username)}
+					<button type="button" onclick={() => useDemoAccount(account.username)}>
+						<strong>{account.label}</strong><span>{account.username}</span>
+					</button>
+				{/each}
+			</div>
+		</div>
 
 		<p class="login-note">This is a portfolio demo. Do not use a password from another service.</p>
 	</div>
@@ -207,6 +245,69 @@
 		font-size: 0.78rem;
 		line-height: 1.5;
 		text-align: left;
+	}
+
+	.demo-access {
+		margin-top: 1.5rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--line);
+	}
+
+	.demo-access h2,
+	.demo-access p {
+		margin: 0;
+	}
+
+	.demo-access h2 {
+		color: var(--ink);
+		font-size: 0.95rem;
+	}
+
+	.demo-access p {
+		margin-top: 0.4rem;
+		color: var(--muted);
+		font-size: 0.78rem;
+	}
+
+	.demo-access code {
+		color: var(--ink);
+	}
+
+	.demo-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.5rem;
+		margin-top: 0.9rem;
+	}
+
+	.demo-grid button {
+		display: grid;
+		min-height: 3.4rem;
+		align-content: center;
+		justify-items: start;
+		margin: 0;
+		padding: 0.55rem 0.7rem;
+		border-color: var(--line-dark);
+		background: var(--surface-alt);
+		color: var(--ink);
+		text-align: left;
+	}
+
+	.demo-grid button:hover {
+		border-color: var(--ink);
+		background: var(--surface);
+	}
+
+	.demo-grid button span {
+		margin-top: 0.2rem;
+		color: var(--muted);
+		font:
+			0.7rem ui-monospace,
+			monospace;
+	}
+
+	.demo-grid button:last-child {
+		grid-column: 1 / -1;
 	}
 
 	@media (max-width: 480px) {

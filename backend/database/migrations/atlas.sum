@@ -1,4 +1,5 @@
-h1:D0JDUTYReeAYwy2ao0Aj2H0tvZq98MX6cfAI2SQ2ogY=
+h1:TbD3/wUDhRBD0ffcRkRI4SZcwN322rAgW68Q64bxSqY=
 20261008062252_initial_schema.sql h1:RsDDSeg1Yk1fVd7aWXY8GJYggwCgRThckFflbd+MVzU=
 20261009090000_add_catalogue_code.sql h1:R+3VE+zMCQhTStt2MpUKLJUnz12fO89AX24DkPven9o=
 20261009091000_seed_demo_catalogue.sql h1:ivPvin/OjONJ8b4ss2GQ/OlmA6tvZLnHTeA/NPLAbcw=
+20261011120000_fix_demo_user_passwords.sql h1:uO63vLEk/YybOY+0E3i7la19nVt/j9jIXVXLJCL9LVc=

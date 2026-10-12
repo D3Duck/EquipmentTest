@@ -1,18 +1,52 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { authState, signOut } from '#lib/auth.ts';
 	import GitHubIcon from './GitHubIcon.svelte';
 
 	let menuOpen = $state(false);
+	let isSigningOut = $state(false);
+	let signOutError = $state('');
 
-	const navItems = [
-		{ href: '/', label: 'Overview' },
-		{ href: '/home', label: 'Home' },
-		{ href: '/equipment', label: 'Equipment' },
-		{ href: '/bookings', label: 'My bookings' }
-	];
+	const navItems = $derived.by(() => {
+		const items = [
+			{ href: '/', label: 'Overview' },
+			{ href: '/home', label: 'Home' },
+			{ href: '/equipment', label: 'Equipment' }
+		];
+		const role = $authState.user?.role;
+		if (role === 'customer' || role === 'system_admin') {
+			items.push({ href: '/bookings', label: 'My bookings' });
+		}
+		if (role === 'employee' || role === 'store_admin' || role === 'system_admin') {
+			items.push({ href: '/store', label: 'Store operations' });
+		}
+		if (role === 'system_admin') {
+			items.push({ href: '/system', label: 'System' });
+		}
+		return items;
+	});
 
 	function isCurrent(href: string) {
 		return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
+	}
+
+	async function handleSignOut() {
+		isSigningOut = true;
+		signOutError = '';
+		try {
+			await signOut();
+			menuOpen = false;
+			await goto('/');
+		} catch {
+			signOutError = 'Sign-out failed. Please try again.';
+		} finally {
+			isSigningOut = false;
+		}
+	}
+
+	function roleLabel(role: string) {
+		return role.replaceAll('_', ' ');
 	}
 </script>
 
@@ -28,6 +62,7 @@
 					rel="noreferrer"><GitHubIcon /> <span>Source code</span></a
 				>
 			</nav>
+			{#if signOutError}<p class="account-error" role="alert">{signOutError}</p>{/if}
 		</div>
 	</div>
 
@@ -67,7 +102,19 @@
 		<a class="cart-link" href="/cart" aria-current={isCurrent('/cart') ? 'page' : undefined}>
 			Cart
 		</a>
-		<a class="sign-in" href="/login">Sign in</a>
+		{#if $authState.user}
+			<div class="account">
+				<span class="account-copy">
+					<strong>{$authState.user.display_name}</strong>
+					<small>{roleLabel($authState.user.role)}</small>
+				</span>
+				<button type="button" class="sign-out" disabled={isSigningOut} onclick={handleSignOut}>
+					{isSigningOut ? 'Signing out…' : 'Sign out'}
+				</button>
+			</div>
+		{:else if $authState.status !== 'loading'}
+			<a class="sign-in" href="/login">Sign in</a>
+		{/if}
 
 		<button
 			class="menu-toggle"
@@ -113,7 +160,17 @@
 			</a>
 		{/each}
 		<a class="nav-link" href="/cart" onclick={() => (menuOpen = false)}>Cart</a>
-		<a class="nav-link" href="/login" onclick={() => (menuOpen = false)}>Sign in</a>
+		{#if $authState.user}
+			<p class="mobile-account">
+				<strong>{$authState.user.display_name}</strong>
+				<span>{roleLabel($authState.user.role)}</span>
+			</p>
+			<button class="mobile-sign-out" type="button" disabled={isSigningOut} onclick={handleSignOut}>
+				{isSigningOut ? 'Signing out…' : 'Sign out'}
+			</button>
+		{:else if $authState.status !== 'loading'}
+			<a class="nav-link" href="/login" onclick={() => (menuOpen = false)}>Sign in</a>
+		{/if}
 		<a class="nav-link secondary" href="/" onclick={() => (menuOpen = false)}>Portfolio overview</a>
 		<a
 			class="nav-link secondary github-link"
@@ -171,6 +228,12 @@
 		color: #fff;
 		text-decoration: underline;
 		text-underline-offset: 0.2rem;
+	}
+
+	.account-error {
+		margin: 0 0 0 auto;
+		color: #ffd4cc;
+		font-size: 0.74rem;
 	}
 
 	.nav-shell {
@@ -286,7 +349,8 @@
 	}
 
 	.cart-link,
-	.sign-in {
+	.sign-in,
+	.sign-out {
 		display: inline-flex;
 		min-height: 2.7rem;
 		flex: 0 0 auto;
@@ -300,9 +364,47 @@
 		text-decoration: none;
 	}
 
+	.account {
+		display: flex;
+		align-items: stretch;
+	}
+
+	.account-copy {
+		display: grid;
+		min-width: 8.5rem;
+		align-content: center;
+		padding: 0 0.8rem;
+		border: 1px solid var(--line-dark);
+		border-right: 0;
+		background: var(--surface);
+		line-height: 1.15;
+	}
+
+	.account-copy strong {
+		font-size: 0.78rem;
+	}
+
+	.account-copy small {
+		margin-top: 0.2rem;
+		color: var(--muted);
+		font-size: 0.66rem;
+		text-transform: capitalize;
+	}
+
+	.sign-out {
+		cursor: pointer;
+	}
+
+	.sign-out:disabled,
+	.mobile-sign-out:disabled {
+		cursor: wait;
+		opacity: 0.65;
+	}
+
 	.cart-link:hover,
 	.cart-link[aria-current='page'],
-	.sign-in:hover {
+	.sign-in:hover,
+	.sign-out:hover:not(:disabled) {
 		border-color: var(--ink);
 		background: var(--surface-alt);
 	}
@@ -334,11 +436,12 @@
 		border: 0;
 	}
 
-	@media (max-width: 980px) {
+	@media (max-width: 1180px) {
 		.desktop-nav,
 		.header-search,
 		.cart-link,
-		.sign-in {
+		.sign-in,
+		.account {
 			display: none;
 		}
 
@@ -405,6 +508,30 @@
 
 		.mobile-nav .nav-link.secondary {
 			color: var(--muted);
+		}
+
+		.mobile-account {
+			display: flex;
+			justify-content: space-between;
+			gap: 1rem;
+			margin: 0.75rem 0 0;
+			padding: 0.75rem 0.5rem 0.35rem;
+			color: var(--ink);
+			font-size: 0.82rem;
+		}
+
+		.mobile-account span {
+			color: var(--muted);
+			text-transform: capitalize;
+		}
+
+		.mobile-sign-out {
+			min-height: 2.8rem;
+			border: 1px solid var(--line-dark);
+			background: var(--surface-alt);
+			color: var(--ink);
+			font-weight: 700;
+			cursor: pointer;
 		}
 	}
 

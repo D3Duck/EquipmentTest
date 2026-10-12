@@ -128,6 +128,11 @@ Validation checks `atlas.sum` and executes the migration sequence against the di
 
 ### Lint the New Migration
 
+Atlas CLI v0.38 and later requires Atlas Pro authentication for `migrate lint`. When Pro access is
+not configured, still run `migrate validate`, review the generated SQL and dry-run output manually,
+and record that lint was unavailable; do not report lint as successful. CI should authenticate
+Atlas Pro before treating lint as a required gate.
+
 For the most recently added migration:
 
 ```bash
