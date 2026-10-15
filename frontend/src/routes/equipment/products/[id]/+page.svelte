@@ -316,8 +316,8 @@
 						{isChecking ? 'Checking availability…' : 'Check availability'}
 					</button>
 					<p class="basket-note">
-						Online basket checkout is not yet available in this demo. Checking availability does not
-						reserve equipment.
+						Online basket checkout is not yet available. Checking availability does not reserve
+						equipment.
 					</p>
 				</form>
 			</div>

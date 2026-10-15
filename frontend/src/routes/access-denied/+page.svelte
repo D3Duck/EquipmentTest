@@ -8,7 +8,7 @@
 
 <svelte:head>
 	<title>Access denied · Equipment Hire</title>
-	<meta name="description" content="This demo account cannot access the requested workspace." />
+	<meta name="description" content="This account cannot access the requested workspace." />
 </svelte:head>
 
 <section class="access-page">
@@ -25,7 +25,7 @@
 		</p>
 		<div class="actions">
 			<a class="primary" href={returnPath}>Return to your workspace</a>
-			<a href="/login">Use another demo account</a>
+			<a href="/login">Use another account</a>
 		</div>
 	</div>
 </section>

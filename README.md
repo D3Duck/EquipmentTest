@@ -1,10 +1,11 @@
-# Demo website
+# Equipment Hire
 
-A portfolio-type project demo.
+A full-stack equipment-hire application with transactional booking, role-based access, and
+physical inventory management.
 
 Website: https://testequipment.duckdns.org/
 
-## Seeded demo accounts
+## Seeded accounts
 
 The database migration seeds `customer1`, `customer2`, `employee`, `storeadmin`, and `admin` with
 the deliberately fictional password `password`. Use `/login` to choose an account or enter its

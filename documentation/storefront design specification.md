@@ -82,7 +82,7 @@ The root route is an employer-facing engineering case study, separate from the c
 It uses a compact technical-document layout rather than a marketing hero or feature cards. Heading
 sizes and section spacing stay close to README/documentation conventions. It explains the problem
 model, architecture, technology choices, difficult and straightforward implementation work, testing,
-delivery, and retrospective lessons in the first person. Links into the working demo and source
+delivery, and retrospective lessons in the first person. Links into the working application and source
 repository remain visible without dominating the technical account.
 
 ## Product Catalogue
@@ -101,7 +101,7 @@ Product entries present information in this order:
 2. Category and asset code.
 3. Product name.
 4. Daily rate.
-5. Current demo-stock quantity.
+5. Current stock quantity.
 
 Descriptions and specifications belong on the product detail page so the catalogue can remain dense
 and scannable. No placeholder specifications are invented.
@@ -143,7 +143,7 @@ The remaining workflow routes exist as plain developer placeholders:
 - Customer: cart, checkout, confirmation, booking list, and booking detail.
 - Store operations: employee schedule and fulfilment, plus store-admin inventory, product, physical
   unit, price, and maintenance management.
-- System administration: audit events, access, and protected demo reset.
+- System administration: audit events, access, and protected environment reset.
 - Shared states: access denied and the application error page.
 
 These routes intentionally contain only an unstyled heading and TODO text. They are implementation markers, not previews of their eventual interfaces, and must not imply that a server mutation succeeded. They are replaced incrementally as the corresponding APIs and authorization rules are implemented.

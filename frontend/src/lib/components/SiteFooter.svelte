@@ -8,7 +8,7 @@
 	<div class="container footer-shell">
 		<div class="footer-brand">
 			<span aria-hidden="true">E/H</span>
-			<p><strong>Equipment Hire</strong><small>Sydney depot demo</small></p>
+			<p><strong>Equipment Hire</strong><small>Sydney depot</small></p>
 		</div>
 
 		<nav class="footer-links" aria-label="Footer navigation">

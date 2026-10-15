@@ -7,7 +7,7 @@
 	let password = $state('');
 	let errorMessage = $state('');
 	let isSubmitting = $state(false);
-	const demoAccounts = [
+	const availableAccounts = [
 		{ username: 'customer1', label: 'Customer' },
 		{ username: 'customer2', label: 'Customer 2' },
 		{ username: 'employee', label: 'Employee' },
@@ -50,7 +50,7 @@
 		}
 	}
 
-	function useDemoAccount(selectedUsername: string) {
+	function useAvailableAccount(selectedUsername: string) {
 		username = selectedUsername;
 		password = 'password';
 		errorMessage = '';
@@ -63,7 +63,7 @@
 
 <svelte:head>
 	<title>Sign in · Equipment Hire</title>
-	<meta name="description" content="Sign in to the Equipment Hire demo." />
+	<meta name="description" content="Sign in to Equipment Hire." />
 </svelte:head>
 
 <section class="login-page">
@@ -73,55 +73,57 @@
 			<p>Manage your bookings and check collection details.</p>
 		</div>
 
-		<form onsubmit={handleSubmit}>
-			<label for="username">
-				Username
-				<input
-					id="username"
-					name="username"
-					type="text"
-					autocomplete="username"
-					placeholder="Enter your username"
-					bind:value={username}
-					required
-				/>
-			</label>
+		<div class="login-content">
+			<form onsubmit={handleSubmit}>
+				<label for="username">
+					Username
+					<input
+						id="username"
+						name="username"
+						type="text"
+						autocomplete="username"
+						placeholder="Enter your username"
+						bind:value={username}
+						required
+					/>
+				</label>
 
-			<label for="password">
-				Password
-				<input
-					id="password"
-					name="password"
-					type="password"
-					autocomplete="current-password"
-					placeholder="Enter your password"
-					bind:value={password}
-					required
-				/>
-			</label>
+				<label for="password">
+					Password
+					<input
+						id="password"
+						name="password"
+						type="password"
+						autocomplete="current-password"
+						placeholder="Enter your password"
+						bind:value={password}
+						required
+					/>
+				</label>
 
-			{#if errorMessage}
-				<p class="form-error" role="alert">{errorMessage}</p>
-			{/if}
+				{#if errorMessage}
+					<p class="form-error" role="alert">{errorMessage}</p>
+				{/if}
 
-			<button type="submit" disabled={isSubmitting}>
-				{isSubmitting ? 'Signing in…' : 'Sign in'}
-			</button>
-		</form>
+				<button type="submit" disabled={isSubmitting}>
+					{isSubmitting ? 'Signing in…' : 'Sign in'}
+				</button>
+			</form>
 
-		<div class="demo-access">
-			<h2>Demo accounts</h2>
-			<p>Every account uses the fictional password <code>password</code>.</p>
-			<div class="demo-grid">
-				{#each demoAccounts as account (account.username)}
-					<button type="button" onclick={() => useDemoAccount(account.username)}>
-						<strong>{account.label}</strong><span>{account.username}</span>
-					</button>
-				{/each}
+			<div class="account-access">
+				<h2>Available accounts</h2>
+				<p>Every account uses the fictional password <code>password</code>.</p>
+				<div class="account-grid">
+					{#each availableAccounts as account (account.username)}
+						<button type="button" onclick={() => useAvailableAccount(account.username)}>
+							<strong>{account.label}</strong><span>{account.username}</span>
+						</button>
+					{/each}
+				</div>
 			</div>
 		</div>
 
-		<p class="login-note">This is a portfolio demo. Do not use a password from another service.</p>
+		<p class="login-note">These are shared accounts. Do not use a password from another service.</p>
 	</div>
 </section>
 
@@ -247,40 +249,40 @@
 		text-align: left;
 	}
 
-	.demo-access {
+	.account-access {
 		margin-top: 1.5rem;
 		padding-top: 1.25rem;
 		border-top: 1px solid var(--line);
 	}
 
-	.demo-access h2,
-	.demo-access p {
+	.account-access h2,
+	.account-access p {
 		margin: 0;
 	}
 
-	.demo-access h2 {
+	.account-access h2 {
 		color: var(--ink);
 		font-size: 0.95rem;
 	}
 
-	.demo-access p {
+	.account-access p {
 		margin-top: 0.4rem;
 		color: var(--muted);
 		font-size: 0.78rem;
 	}
 
-	.demo-access code {
+	.account-access code {
 		color: var(--ink);
 	}
 
-	.demo-grid {
+	.account-grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 0.5rem;
 		margin-top: 0.9rem;
 	}
 
-	.demo-grid button {
+	.account-grid button {
 		display: grid;
 		min-height: 3.4rem;
 		align-content: center;
@@ -293,12 +295,12 @@
 		text-align: left;
 	}
 
-	.demo-grid button:hover {
+	.account-grid button:hover {
 		border-color: var(--ink);
 		background: var(--surface);
 	}
 
-	.demo-grid button span {
+	.account-grid button span {
 		margin-top: 0.2rem;
 		color: var(--muted);
 		font:
@@ -306,8 +308,28 @@
 			monospace;
 	}
 
-	.demo-grid button:last-child {
+	.account-grid button:last-child {
 		grid-column: 1 / -1;
+	}
+
+	@media (min-width: 48rem) {
+		.login-card {
+			width: min(100%, 52rem);
+		}
+
+		.login-content {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) minmax(17rem, 1fr);
+			gap: 2rem;
+			align-items: start;
+		}
+
+		.account-access {
+			margin-top: 0;
+			padding: 0 0 0 2rem;
+			border-top: 0;
+			border-left: 1px solid var(--line);
+		}
 	}
 
 	@media (max-width: 480px) {

@@ -1,6 +1,6 @@
 # Authentication API
 
-The demo uses opaque server-side sessions. A successful login returns a random token in the
+The application uses opaque server-side sessions. A successful login returns a random token in the
 `equipment_session` cookie; only its SHA-256 hash is stored in PostgreSQL. Sessions last 12 hours,
 can be refreshed explicitly, and are deleted on sign-out. Disabling a user also prevents an
 existing session from authenticating.
@@ -9,7 +9,7 @@ The cookie is HTTP-only, uses `SameSite=Lax`, is scoped to `/`, and is marked `S
 requests or when the application environment is `production` or `prod`. Authentication responses
 use `Cache-Control: no-store`.
 
-## Demo accounts
+## Seeded accounts
 
 All accounts use the deliberately fictional password `password`.
 

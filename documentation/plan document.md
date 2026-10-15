@@ -7,7 +7,7 @@ A practical equipment-hire application built as a portfolio project. It should d
 The application lets customers browse equipment, select a hire period and quantity, complete a
 simulated checkout, and manage their bookings. Employees handle day-to-day booking fulfilment and
 customer service. Store administrators additionally manage catalogue listings, physical equipment
-units, prices, and maintenance. System administrators are master administrators for the shared demo
+units, prices, and maintenance. System administrators are master administrators for the shared
 environment.
 
 The initial product is solely an equipment-hire application. Uptime-monitor features and data are not part of its domain.
@@ -36,10 +36,10 @@ inherits every application permission, including store administration.
 | Allocate, collect, and return hired items        | No       | Yes      | Yes         | Yes          |
 | Record exceptional booking corrections           | No       | No       | Yes         | Yes          |
 | Manage catalogue, units, prices, and maintenance | No       | No       | Yes         | Yes          |
-| View demo access and audit information           | No       | No       | No          | Yes          |
-| Reset the demo environment                       | No       | No       | No          | Yes          |
+| View access and audit information                | No       | No       | No          | Yes          |
+| Reset the shared environment                     | No       | No       | No          | Yes          |
 
-Demo accounts:
+Seeded accounts:
 
 - `customer1` and `customer2`
 - `employee`
@@ -48,7 +48,7 @@ Demo accounts:
 
 Server-side authorization is authoritative for every protected action. Hiding a control in the user interface is not considered sufficient access control.
 
-## Shared Layout and Demo Access
+## Shared Layout and Account Access
 
 ### Navigation
 
@@ -60,7 +60,7 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - Catalogue Administration for store administrators and system administrators
 - System Administration for system administrators
 - GitHub repository
-- Current demo account and sign-out action
+- Current account and sign-out action
 
 ### Footer
 
@@ -68,16 +68,16 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - Stack: Svelte 5, Go, Fiber, PostgreSQL, Atlas, Docker, and Caddy
 - Source-code link
 
-### Sign-in and Demo Reset
+### Sign-in and Environment Reset
 
-- First-time visitors arrive at the portfolio overview and can enter the customer demo without signing in.
+- First-time visitors arrive at the portfolio overview and can enter the customer application without signing in.
 - The dedicated sign-in page is linked from the global navigation and portfolio overview.
-- Demo credentials are displayed clearly below the form.
+- Seeded account credentials are displayed clearly below the form.
 - The seeded database includes catalogue products, physical units, customers, bookings, maintenance records, and audit events covering all important states.
-- Only the system administrator can trigger **Reset Demo**.
+- Only the system administrator can trigger **Reset Environment**.
 - Resetting requires confirmation, runs as one controlled server-side operation, and restores a predefined dataset.
 - While a reset is running, writes are temporarily rejected and users receive a clear message. Connected clients are prompted to reload after completion.
-- Reset actions are recorded in the audit log. The interface warns that other users' demo changes will be removed.
+- Reset actions are recorded in the audit log. The interface warns that other users' changes will be removed.
 
 ## Customer Workflows
 
@@ -86,7 +86,7 @@ Server-side authorization is authoritative for every protected action. Hiding a 
 - Explain the purpose and current scope of the portfolio project for prospective employers.
 - Link to the source repository.
 - Summarize the architecture, deployment, and notable implementation decisions.
-- Explain how to explore the public demo.
+- Explain how to explore the public application.
 
 ### Customer Home — `/home`
 
@@ -196,18 +196,18 @@ System-administrator workflows use the `/system` workspace:
 
 - `/system` — system-administration overview.
 - `/system/audit` — audit events.
-- `/system/access` — safe demo identity, role, session, and sign-in information.
-- `/system/demo` — protected demo reset.
+- `/system/access` — safe identity, role, session, and sign-in information.
+- `/system/reset` — protected environment reset.
 
-- View sign-in and important demo activity without exposing passwords or sensitive authentication data.
+- View sign-in and important account activity without exposing passwords or sensitive authentication data.
 - View the audit log, including actor, action, affected entity, timestamp, and relevant before/after values.
-- Trigger the protected demo reset workflow.
+- Trigger the protected environment reset workflow.
 
 ## Domain and Data Model
 
 ### Main Entities
 
-- `users`: demo identities and roles.
+- `users`: application identities and roles.
 - `equipment_products`: customer-facing catalogue entries such as “Makita Cordless Drill.”
 - `equipment_units`: individually tracked physical assets belonging to a product.
 - `maintenance_records`: periods during which a unit cannot be hired.
@@ -277,7 +277,7 @@ Show a bottom-right notification when another user's action changes availability
 
 ### Phase 1 — Core MVP
 
-- Demo authentication and role-based authorization
+- Authentication and role-based authorization
 - Seeded catalogue and physical-unit inventory
 - Period- and quantity-aware availability
 - Basket and atomic simulated checkout
@@ -290,7 +290,7 @@ Show a bottom-right notification when another user's action changes availability
 - WebSocket invalidation and notifications
 - Physical-unit allocation and complete collection/return workflow
 - Overdue presentation
-- Audit log and protected demo reset
+- Audit log and protected environment reset
 - Responsive design, accessibility pass, and light/dark themes
 - More comprehensive end-to-end tests
 
@@ -317,7 +317,7 @@ The application is ready to demonstrate when all of the following are true:
 - Price changes do not alter historical booking totals and are surfaced to customers before checkout.
 - Collection, return, and overdue behaviour is visible and auditable.
 - No real card information is requested, transmitted, or stored.
-- Demo reset restores the predefined dataset safely and prompts connected users to reload.
+- Environment reset restores the predefined dataset safely and prompts connected users to reload.
 - Loading, empty, success, validation, conflict, unauthorized, and server-error states are handled consistently.
 - Data persists after an application restart, and migrations work from a clean database.
 - Automated tests cover booking concurrency, interval boundaries, cancellation, permissions, price changes, maintenance exclusion, and reset behaviour.
@@ -325,7 +325,7 @@ The application is ready to demonstrate when all of the following are true:
 
 ## Documentation Deliverables
 
-- Local setup and demo-account instructions
+- Local setup and seeded-account instructions
 - Architecture and domain-model overview
 - API and WebSocket event documentation
 - Explanation of transaction and concurrency choices
