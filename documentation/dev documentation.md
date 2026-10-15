@@ -16,6 +16,32 @@ git pull --ff-only
 bash scripts/deploy-ec2.sh
 ```
 
+## Azure image deployment
+
+The current Azure VM deployment publishes the application directly over the host port configured by
+`GO_PORT` in `/etc/equipment-app.env`. The environment file must also define the PostgreSQL settings,
+`JWT_SECRET`, and `APP_BIND_ADDRESS` used by `compose.yaml`. The deployment script maintains
+`APP_VERSION` and `EQUIPMENT_IMAGE` in that file.
+
+After the GitHub Actions image-publishing workflow succeeds for the new `main` commit, deploy it with:
+
+```bash
+set -e
+cd /opt/equipment-app
+git pull --ff-only origin main
+sudo bash scripts/deploy-azure.sh
+```
+
+The script refuses a dirty checkout, pulls the commit-tagged image before downtime, records the new
+image and application version in `/etc/equipment-app.env`, stops only the backend, writes a protected
+database backup under `/var/backups/equipment`, applies Atlas migrations, starts the downloaded image,
+and checks the health endpoint through the configured host port. A pull failure leaves the existing
+application running. A backup or migration failure deliberately leaves the backend stopped for
+investigation.
+
+This direct HTTP layout is for the current Azure bring-up. Add the reviewed HTTPS Compose override and
+open port 443 before treating the deployment as production-ready.
+
 ## AWS database backup to S3
 
 ```bash
