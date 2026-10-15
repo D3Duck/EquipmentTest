@@ -18,10 +18,21 @@ bash scripts/deploy-ec2.sh
 
 ## Azure image deployment
 
-The current Azure VM deployment publishes the application directly over the host port configured by
-`GO_PORT` in `/etc/equipment-app.env`. The environment file must also define the PostgreSQL settings,
-`JWT_SECRET`, and `APP_BIND_ADDRESS` used by `compose.yaml`. The deployment script maintains
-`APP_VERSION` and `EQUIPMENT_IMAGE` in that file.
+The Azure VM deployment uses Caddy to terminate HTTPS for the public `DOMAIN` and proxy to the Go
+application over the internal Compose network. The Go port remains published on
+`127.0.0.1:8080` for local health checks and is not directly reachable from the internet. Caddy owns
+host ports 80 and 443 and stores certificates in the persistent `caddy_data` volume.
+
+Before the first HTTPS deployment, add the public DNS name to the protected environment file:
+
+```bash
+sudo sh -c "printf '\nDOMAIN=testequipment.duckdns.org\n' >> /etc/equipment-app.env"
+```
+
+Keep Azure TCP port 443 open. Opening TCP port 80 is recommended so Caddy can perform HTTP ACME
+validation and redirect HTTP requests to HTTPS. With port 80 closed, certificate issuance can still
+use the TLS-ALPN challenge over port 443, but external HTTP requests cannot redirect. UDP port 443 is
+optional and only needed for HTTP/3.
 
 After the GitHub Actions image-publishing workflow succeeds for the new `main` commit, deploy it with:
 
@@ -32,15 +43,13 @@ git pull --ff-only origin main
 sudo bash scripts/deploy-azure.sh
 ```
 
-The script refuses a dirty checkout, pulls the commit-tagged image before downtime, records the new
-image and application version in `/etc/equipment-app.env`, stops only the backend, writes a protected
-database backup under `/var/backups/equipment`, applies Atlas migrations, starts the downloaded image,
-and checks the health endpoint through the configured host port. A pull failure leaves the existing
-application running. A backup or migration failure deliberately leaves the backend stopped for
-investigation.
-
-This direct HTTP layout is for the current Azure bring-up. Add the reviewed HTTPS Compose override and
-open port 443 before treating the deployment as production-ready.
+The script refuses a dirty checkout, pulls the commit-tagged application and pinned Caddy images
+before downtime, records the new image and application version in `/etc/equipment-app.env`, restricts
+the application binding to `127.0.0.1:8080`, stops only the backend, writes a protected database
+backup under `/var/backups/equipment`, applies Atlas migrations, and starts the downloaded application
+and Caddy. It checks both the local application health endpoint and the public-domain TLS certificate.
+A pull failure leaves the existing application running. A backup or migration failure deliberately
+leaves the backend stopped for investigation.
 
 ## AWS database backup to S3
 

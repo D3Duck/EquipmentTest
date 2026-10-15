@@ -1,4 +1,4 @@
-# Use with compose.yaml and the EC2-local compose.https.yaml.
+# Use with compose.yaml and compose.https.yaml.
 # The deploy script sets this to the image matching the checked-out commit.
 services:
   app-backend:
