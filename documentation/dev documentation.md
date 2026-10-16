@@ -1,40 +1,58 @@
 # Development and Release Cycle
 
-## Notes
+## Azure and AWS VM deployments
 
--ltnp 'sport = :8090'
+Azure and AWS use the same application stack and deployment implementation. The cloud-specific scripts are intentionally thin entry points so the two environments cannot drift:
 
-## AWS image deployment
+- `bootstrap-azure.sh` and `bootstrap-ec2.sh` call the shared first-deployment workflow.
+- `deploy-azure.sh` and `deploy-ec2.sh` call the shared repeat-deployment workflow.
 
-GitHub Actions builds the backend Dockerfile (including Svelte) on pushes to `main`
-and publishes `ghcr.io/d3duck/equipmenttest:<full-commit-id>`.
+GitHub Actions builds the backend Dockerfile, including the Svelte frontend, on pushes to `main` and publishes `ghcr.io/d3duck/equipmenttest:<full-commit-id>`. Both clouds run the exact image associated with the checked-out commit.
+
+### VM and network prerequisites
+
+Use an Ubuntu LTS VM for the documented bootstrap path. Assign a stable public IP and point the public DNS name to it before bootstrapping. Configure the Azure network security group or AWS security group with:
+
+- TCP 22 from trusted administrator addresses.
+- TCP 443 from the internet.
+- TCP 80 from the internet, recommended for ACME HTTP validation and HTTP-to-HTTPS redirects.
+- UDP 443 optionally for HTTP/3.
+
+Do not expose PostgreSQL port 5432 or the application's local health port 8080. The Compose stack binds both to `127.0.0.1`. Caddy is the only public application entry point and stores certificates in the persistent `caddy_data` volume. If UFW is active on the VM, allow TCP 22, 80, and 443 there as well before relying on the cloud firewall rules.
+
+### First deployment on a new VM
+
+Install Git, clone the repository, and run the provider entry point. The bootstrap installs Docker and Compose when they are missing on Ubuntu/Debian, creates `/etc/equipment-app.env` with mode `0600` and generated database/session secrets, pulls immutable application and pinned infrastructure images, starts PostgreSQL, applies Atlas migrations, and starts the application and Caddy.
+
+Azure:
 
 ```bash
-set -e
+sudo apt-get update
+sudo apt-get install -y git
+sudo install -d -o "$USER" -g "$USER" /opt/equipment-app
+git clone https://github.com/D3Duck/EquipmentTest.git /opt/equipment-app
 cd /opt/equipment-app
-git pull --ff-only
-bash scripts/deploy-ec2.sh
+sudo DOMAIN=testequipment.duckdns.org bash scripts/bootstrap-azure.sh
 ```
 
-## Azure image deployment
-
-The Azure VM deployment uses Caddy to terminate HTTPS for the public `DOMAIN` and proxy to the Go
-application over the internal Compose network. The Go port remains published on
-`127.0.0.1:8080` for local health checks and is not directly reachable from the internet. Caddy owns
-host ports 80 and 443 and stores certificates in the persistent `caddy_data` volume.
-
-Before the first HTTPS deployment, add the public DNS name to the protected environment file:
+AWS EC2 uses the same steps with the AWS domain and entry point:
 
 ```bash
-sudo sh -c "printf '\nDOMAIN=testequipment.duckdns.org\n' >> /etc/equipment-app.env"
+sudo apt-get update
+sudo apt-get install -y git
+sudo install -d -o "$USER" -g "$USER" /opt/equipment-app
+git clone https://github.com/D3Duck/EquipmentTest.git /opt/equipment-app
+cd /opt/equipment-app
+sudo DOMAIN=equipment.example.com bash scripts/bootstrap-ec2.sh
 ```
 
-Keep Azure TCP port 443 open. Opening TCP port 80 is recommended so Caddy can perform HTTP ACME
-validation and redirect HTTP requests to HTTPS. With port 80 closed, certificate issuance can still
-use the TLS-ALPN challenge over port 443, but external HTTP requests cannot redirect. UDP port 443 is
-optional and only needed for HTTP/3.
+The bootstrap refuses to replace credentials when it finds existing containers or a PostgreSQL volume without the protected environment file. If an image pull or early initialization step fails, rerun the same bootstrap command. Once an application container exists, use the deployment workflow.
 
-After the GitHub Actions image-publishing workflow succeeds for the new `main` commit, deploy it with:
+### Repeat deployment
+
+Wait for the GitHub Actions image-publishing workflow to succeed, then update the checkout and run the provider entry point.
+
+Azure:
 
 ```bash
 set -e
@@ -43,27 +61,47 @@ git pull --ff-only origin main
 sudo bash scripts/deploy-azure.sh
 ```
 
-The script refuses a dirty checkout, pulls the commit-tagged application and pinned Caddy images
-before downtime, records the new image and application version in `/etc/equipment-app.env`, restricts
-the application binding to `127.0.0.1:8080`, stops only the backend, writes a protected database
-backup under `/var/backups/equipment`, applies Atlas migrations, and starts the downloaded application
-and Caddy. It checks both the local application health endpoint and the public-domain TLS certificate.
-A pull failure leaves the existing application running. A backup or migration failure deliberately
-leaves the backend stopped for investigation.
+AWS:
+
+```bash
+set -e
+cd /opt/equipment-app
+git pull --ff-only origin main
+sudo bash scripts/deploy-ec2.sh
+```
+
+The shared deployment refuses a dirty checkout, pulls images before downtime, writes a protected pre-migration backup under `/var/backups/equipment`, applies Atlas migrations, reconciles the application and Caddy containers, and checks both local application health and the public-domain TLS certificate. A pull failure leaves the existing application running. A backup or migration failure deliberately leaves the backend stopped for investigation.
+
+### Migrate an older AWS checkout
+
+Older AWS installations used a repository-local `.env.aws`. Move its settings into the shared protected location before using the new deployment script:
+
+```bash
+cd /opt/equipment-app
+sudo install -m 600 .env.aws /etc/equipment-app.env
+sudo sed -i '/^DOMAIN=/d' /etc/equipment-app.env
+printf '%s\n' 'DOMAIN=equipment.example.com' | sudo tee -a /etc/equipment-app.env >/dev/null
+sudo bash scripts/deploy-ec2.sh
+```
+
+After verifying the deployment and backup, remove `.env.aws` from the checkout so secrets are not stored beside source code.
 
 ## AWS database backup to S3
 
 ```bash
 set -e
 umask 077
+cd /opt/equipment-app
 
 bucket="testequipment-backups"
 
 mkdir -p /var/backups/equipment
 backup="/var/backups/equipment/$(date -u +%Y%m%dT%H%M%SZ).dump"
 
-docker exec equipment-postgres-1 sh -c \
-  'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' \
+docker compose --env-file /etc/equipment-app.env \
+  -f compose.yaml -f compose.https.yaml \
+  exec -T postgres sh -c \
+  'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom' \
   > "$backup"
 
 test -s "$backup"
@@ -99,8 +137,7 @@ Do not commit application code that depends on a schema migration without also c
 
 ## SQLC Query Workflow
 
-PostgreSQL application queries live in `backend/database/queries`. Generated pgx/v5 code lives in
-`backend/database/generated` and is committed so application builds do not need the sqlc tool.
+PostgreSQL application queries live in `backend/database/queries`. Generated pgx/v5 code lives in `backend/database/generated` and is committed so application builds do not need the sqlc tool.
 
 After changing a query or a schema object used by a query, run from `backend/`:
 
@@ -108,9 +145,7 @@ After changing a query or a schema object used by a query, run from `backend/`:
 go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1 generate
 ```
 
-Review the generated diff and run `go test ./...`. Do not edit files in
-`backend/database/generated` manually. The schema inputs are listed explicitly in
-`backend/sqlc.yaml`; add each new schema migration that changes objects used by sqlc queries.
+Review the generated diff and run `go test ./...`. Do not edit files in `backend/database/generated` manually. The schema inputs are listed explicitly in `backend/sqlc.yaml`; add each new schema migration that changes objects used by sqlc queries.
 
 ## Changes Without Development Downtime
 
@@ -163,10 +198,7 @@ Validation checks `atlas.sum` and executes the migration sequence against the di
 
 ### Lint the New Migration
 
-Atlas CLI v0.38 and later requires Atlas Pro authentication for `migrate lint`. When Pro access is
-not configured, still run `migrate validate`, review the generated SQL and dry-run output manually,
-and record that lint was unavailable; do not report lint as successful. CI should authenticate
-Atlas Pro before treating lint as a required gate.
+Atlas CLI v0.38 and later requires Atlas Pro authentication for `migrate lint`. When Pro access is not configured, still run `migrate validate`, review the generated SQL and dry-run output manually, and record that lint was unavailable; do not report lint as successful. CI should authenticate Atlas Pro before treating lint as a required gate.
 
 For the most recently added migration:
 

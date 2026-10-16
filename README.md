@@ -1,36 +1,41 @@
 # Equipment Hire
 
-A full-stack equipment-hire application with transactional booking, role-based access, and
-physical inventory management.
+A portfolio equipment-hire application built with Svelte 5, Go/Fiber, PostgreSQL, Atlas, Docker, and Caddy. It demonstrates role-based access, physical inventory, transactional booking, real-time updates, testing, and cloud deployment.
 
-Website: https://testequipment.duckdns.org/
+[Live demo](https://testequipment.duckdns.org/)
 
-## Seeded accounts
+## Demo accounts
 
-The database migration seeds `customer1`, `customer2`, `employee`, `storeadmin`, and `admin` with
-the deliberately fictional password `password`. Use `/login` to choose an account or enter its
-credentials. Successful sign-in creates a 12-hour, database-backed session in an HTTP-only cookie;
-sign-out revokes that session immediately.
+Sign in with `customer1`, `customer2`, `employee`, `storeadmin`, or `admin`. Every demo account uses the fictional password `password`.
 
-The navigation reflects the signed-in role. Customer, store, and system pages are also guarded in
-the frontend for usability, while API authorization remains the authoritative security boundary.
+## Run locally
 
-## Authentication API
+The committed configuration contains demo-only local values.
 
-- `POST /api/login` — validate a seeded account and create a session.
-- `GET /api/session` — return the current user and session expiry.
-- `POST /api/session/refresh` — extend a valid session by 12 hours.
-- `POST /api/logout` — revoke the current session and clear its cookie.
+```bash
+docker compose up --build --detach
+docker compose ps
+```
 
-Authentication responses use `Cache-Control: no-store`. Session cookies are HTTP-only and
-SameSite=Lax, and are marked Secure for HTTPS requests or when `ENVIRONMENT` is `production` or
-`prod`. See `documentation/authentication API.md` for request and response details.
+## Deploy to Azure or AWS
 
-## Public catalogue API
+Pushes to `main` publish `ghcr.io/d3duck/equipmenttest:<commit-sha>`. Both cloud flows use the same PostgreSQL, migration, application, and Caddy HTTPS stack.
 
-- `GET /api/equipment`
-- `GET /api/equipment/products/:id`
+On an Ubuntu VM, point the domain at the VM, allow inbound TCP 22, 80, and 443, clone this repository to `/opt/equipment-app`, and run the matching command from that directory:
 
-Both endpoints accept an optional `start` and `end` pair as RFC3339 timestamps. When supplied, the
-API returns availability for the half-open interval `[start, end)`. See
-`documentation/catalogue API.md` for the response contract and validation behavior.
+| Provider | First deployment | Later updates |
+| --- | --- | --- |
+| Azure | `sudo DOMAIN=your-domain.example.com bash scripts/bootstrap-azure.sh` | `sudo bash scripts/deploy-azure.sh` |
+| AWS EC2 | `sudo DOMAIN=your-domain.example.com bash scripts/bootstrap-ec2.sh` | `sudo bash scripts/deploy-ec2.sh` |
+
+Before an update, run `git pull --ff-only origin main`; the deployment script uses the checked-out commit SHA as the application image tag.
+
+Bootstrap installs Docker when needed, generates the root-only production configuration, and starts the stack. Updates back up PostgreSQL, apply migrations, replace the application image, and run health checks. Keep PostgreSQL and the application port private; Caddy is the public entry point.
+
+See [Development and deployment](<documentation/dev documentation.md>) for GitHub Container Registry authentication, firewall details, verification, backups, and rollback.
+
+## Documentation
+
+- [Product scope and acceptance criteria](<documentation/plan document.md>)
+- [Authentication API](<documentation/authentication API.md>)
+- [Catalogue API](<documentation/catalogue API.md>)

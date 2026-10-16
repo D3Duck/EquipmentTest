@@ -1,0 +1,2 @@
+# Deployment secrets live under /etc on the VM, never in the checkout.
+.env.*

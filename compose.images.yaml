@@ -1,5 +1,0 @@
-# Use with compose.yaml and compose.https.yaml.
-# The deploy script sets this to the image matching the checked-out commit.
-services:
-  app-backend:
-    image: ${EQUIPMENT_IMAGE:?Set EQUIPMENT_IMAGE to a published commit-tagged image}
